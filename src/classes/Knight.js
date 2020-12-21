@@ -1,17 +1,51 @@
 const Piece = require('./Piece')
 
 class Knight extends Piece {
-    getPossibleMoves() {
-        // index of letter of current location in alphabet
-        const letterIndex = this.letters.indexOf(this.currentLocation.letter)
-        console.log(letterIndex)
-
-        
+    constructor(startLocation, color) {
+        super(startLocation, color);
+        this.moveChanges = [
+            {
+                letter: 2,
+                number: 1,
+            },
+            {
+                letter: 1,
+                number: 2,
+            },
+            {
+                letter: -1,
+                number: 2,
+            },
+            {
+                letter: -2,
+                number: 1,
+            },
+            {
+                letter: -2,
+                number: -1,
+            },
+            {
+                letter: -1,
+                number: -2,
+            },
+            {
+                letter: 1,
+                number: -2,
+            },
+            {
+                letter: 2,
+                number: -1,
+            },
+        ]
     }
 }
 
-let knight = new Knight({ letter: 'b', number: '1'}, 'black')
+// let knight = new Knight({ letter: 'b', number: 1}, 'black')
 
-knight.getPossibleMoves()
+// console.log(knight.getPossibleMoves())
 
-console.log(knight)
+// knight.setCurrentLocation({ letter: 'c', number: 3 })
+
+// console.log(knight)
+
+// console.log(knight.getPossibleMoves())
