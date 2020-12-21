@@ -53,35 +53,15 @@ class Board {
             return true
         })
 
-        // if now paths were blocked, return now
+        // if no paths were blocked, return now
         if (blockedSpots.length === 0) {
             console.log('blocked spots was 0')
             return availableSpots
         }
         // now filter potential spots again to remove any spots blocked by a friendly piece
-        if (chosenPiece.pieceType === 'rook') {
-            blockedSpots.forEach(spot => {
+        availableSpots = chosenPiece.removeBlockedPaths(blockedSpots, availableSpots)
 
-                // find direction to block off
-                if (spot.letter === chosenPiece.currentLocation.letter) {
-                    // letters are same so blocked path is horizontal
-
-                    if (spot.number > chosenPiece.currentLocation.number) {
-                        // if blocked spot number is greater than current number, block all paths above current spot
-                        availableSpots = availableSpots.filter(location => location.number < spot.number)
-                    } else {
-                        // blocked spot number is less than current number, block paths below current spot
-                        availableSpots = availableSpots.filter(location => location.number > spot.number)
-                    }
-                } else {
-                    // letters are different so blocked path is vertical
-                    if (spot.letter > chosenPiece.currentLocation.letter) {
-                        // blocked spot letter is greater so much be to right
-                        availableSpots = availableSpots.filter(location => location.letter < spot.letter)
-                    }
-                }
-            })
-        }
+        
         return availableSpots
     }
 
@@ -131,4 +111,4 @@ const rooks = [
 const board = new Board([...pawns, ...knights, ...rooks])
 
 console.log('moves:')
-console.log(board.getPotentialMoves({ letter: 'b', number: 8 }))
+console.log(board.getPotentialMoves({ letter: 'a', number: 1 }))
