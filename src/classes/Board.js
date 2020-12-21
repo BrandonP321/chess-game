@@ -1,9 +1,11 @@
 const Pawn = require('./Pawn')
 const Knight = require('./Knight')
+const Rook = require('./Rook')
 
 class Board {
     constructor(pieces = []) {
         this.pieces = pieces
+        this.letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
     }
 
     addPiece(piece) {
@@ -19,9 +21,12 @@ class Board {
     getPotentialMoves(pieceLocation) {
         // find which piece is at the given location
         const chosenPiece = this.pieces.filter(piece => piece.currentLocation.letter == pieceLocation.letter && piece.currentLocation.number == pieceLocation.number)[0]
-        
+
         // get possible locations of piece
         let possibleLocations = chosenPiece.getPossibleMoves()
+
+        // locations of friendly pieces blocking a path
+        const blockedSpots = []
 
         // filter possible locations by pieces locations of other pieces on board
         let availableSpots = possibleLocations.filter(newLocation => {
@@ -29,15 +34,54 @@ class Board {
             for (var i = 0; i < this.pieces.length; i++) {
                 let piece = this.pieces[i]
 
-                // if piece's location matches potential location, return false
+
+                // if piece's location matches potential location and is not friendly
                 if (piece.currentLocation.letter === newLocation.letter &&
                     piece.currentLocation.number === newLocation.number) {
-                    return false
+                    // if piece being moved is a knight, we don't need to worry about a path being blocked by a friendly piece
+                    if (chosenPiece.pieceType === 'knight') {
+                        return false
+                    } else if (piece.color === chosenPiece.color) {
+                        // add location of piece to blockedSpots array
+                        blockedSpots.push(piece.currentLocation)
+                        // return false to remove this spot option
+                        return false
+                    }
                 }
             }
             // return true if nothing has been returned yet
             return true
         })
+
+        // if now paths were blocked, return now
+        if (blockedSpots.length === 0) {
+            console.log('blocked spots was 0')
+            return availableSpots
+        }
+        // now filter potential spots again to remove any spots blocked by a friendly piece
+        if (chosenPiece.pieceType === 'rook') {
+            blockedSpots.forEach(spot => {
+
+                // find direction to block off
+                if (spot.letter === chosenPiece.currentLocation.letter) {
+                    // letters are same so blocked path is horizontal
+
+                    if (spot.number > chosenPiece.currentLocation.number) {
+                        // if blocked spot number is greater than current number, block all paths above current spot
+                        availableSpots = availableSpots.filter(location => location.number < spot.number)
+                    } else {
+                        // blocked spot number is less than current number, block paths below current spot
+                        availableSpots = availableSpots.filter(location => location.number > spot.number)
+                    }
+                } else {
+                    // letters are different so blocked path is vertical
+                    if (spot.letter > chosenPiece.currentLocation.letter) {
+                        // blocked spot letter is greater so much be to right
+                        availableSpots = availableSpots.filter(location => location.letter < spot.letter)
+                    }
+                }
+            })
+        }
         return availableSpots
     }
 
@@ -76,8 +120,15 @@ for (let i = 0; i < 8; i++) {
     pawns.push(newPawn)
 }
 
+const rooks = [
+    new Rook({ letter: 'a', number: 1 }, 'white'),
+    new Rook({ letter: 'h', number: 1 }, 'white'),
+    new Rook({ letter: 'a', number: 8 }, 'black'),
+    new Rook({ letter: 'h', number: 8 }, 'black'),
+]
+
 // push pieces from their arrays to the new Board
-const board = new Board([...pawns, ...knights])
+const board = new Board([...pawns, ...knights, ...rooks])
 
-
-console.log(board.getPotentialMoves({ letter: 'e', number: 2 }))
+console.log('moves:')
+console.log(board.getPotentialMoves({ letter: 'b', number: 8 }))

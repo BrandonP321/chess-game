@@ -3,6 +3,7 @@ const Piece = require('./Piece')
 class Knight extends Piece {
     constructor(startLocation, color) {
         super(startLocation, color);
+        this.pieceType = 'knight'
         this.moveChanges = [
             {
                 letter: 2,

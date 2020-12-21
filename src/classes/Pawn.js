@@ -3,6 +3,7 @@ const Piece = require('./Piece')
 class Pawn extends Piece {
     constructor(startLocation, color) {
         super(startLocation, color)
+        this.pieceType = 'pawn'
         this.moveChanges = [
             {
                 letter: 0,

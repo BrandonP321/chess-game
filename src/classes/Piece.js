@@ -20,6 +20,7 @@ class Piece {
                 letter: newLetter,
                 number: this.currentLocation.number + change.number
             }
+            
             // push move to array of moves if both are within possible letters and numbers
             if (newMove.letter && newMove.number >= 1 && newMove.number <= 8) {
                 possibleMoves.push(newMove)
