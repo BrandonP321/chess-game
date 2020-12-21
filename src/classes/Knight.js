@@ -40,6 +40,8 @@ class Knight extends Piece {
     }
 }
 
+module.exports = Knight
+
 // let knight = new Knight({ letter: 'b', number: 1}, 'black')
 
 // console.log(knight.getPossibleMoves())

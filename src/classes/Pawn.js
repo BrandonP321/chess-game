@@ -6,7 +6,7 @@ class Pawn extends Piece {
         this.moveChanges = [
             {
                 letter: 0,
-                number: 1
+                number: this.color == 'black' ? -1: 1
             }
         ]
     }
@@ -19,6 +19,8 @@ class Pawn extends Piece {
     //     this.currentLocation = newLocation
     // }
 }
+
+module.exports = Pawn;
 
 // let pawn = new Pawn({ letter: 'b', number: 2}, 'white')
 

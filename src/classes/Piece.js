@@ -9,7 +9,6 @@ class Piece {
     getPossibleMoves() {
         // index of letter of piece's current location
         const locationLetterIndex = this.letters.indexOf(this.currentLocation.letter)
-        console.log(locationLetterIndex)
 
         const possibleMoves = []
         this.moveChanges.forEach(change => {
