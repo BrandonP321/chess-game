@@ -104,8 +104,6 @@ export default function GameBoard() {
                 square.style.opacity = 0
             })
             // if user is clicking a square other than the currently selected square, show possible move locations
-            console.log(locationLetter, currentlySelectedPiece.letter)
-            console.log(locationNumber, currentlySelectedPiece.number)
             if (locationLetter !== currentlySelectedPiece.letter || locationNumber !== currentlySelectedPiece.number) {
                 // update currently selected square in state
                 setCurrentlySelectedPiece({ letter: locationLetter, number: locationNumber })
@@ -119,7 +117,10 @@ export default function GameBoard() {
                     // give circle and opacity of .6
                     squareCircle.style.opacity = .6
                 })
-            } 
+            }  else {
+                // if user is clicking the piece they already have selected, reset state to nothing
+                setCurrentlySelectedPiece({})
+            }
         }
     }
 
