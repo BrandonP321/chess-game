@@ -123,16 +123,12 @@ const queens = [
 // const board = new Board([...pawns, ...knights, ...rooks, ...bishops, ...queens])
 
 const board = new Board([
-    new Queen({ letter: 'd', number: 4}, 'white'), 
-    new Pawn({ letter: 'd', number: 1 }, 'white'),
-    new Pawn({ letter: 'd', number: 7 }, 'white'),
-    new Pawn({ letter: 'b', number: 2 }, 'white'),
-    new Pawn({ letter: 'b', number: 6 }, 'white'),
-    new Pawn({ letter: 'a', number: 4 }, 'white'),
-    new Pawn({ letter: 'f', number: 2 }, 'white'),
-    new Pawn({ letter: 'g', number: 4 }, 'white'),
-    new Pawn({ letter: 'g', number: 7 }, 'white'),
+    new Bishop({ letter: 'd', number: 3}, 'white'), 
+    new Pawn({ letter: 'b', number: 1 }, 'white'),
+    new Pawn({ letter: 'a', number: 6 }, 'white'),
+    new Pawn({ letter: 'f', number: 1 }, 'white'),
+    new Pawn({ letter: 'f', number: 5 }, 'white'),
 ])
 
 console.log('moves:')
-console.log(board.getPotentialMoves({ letter: 'd', number: 4 }).length)
+console.log(board.getPotentialMoves({ letter: 'd', number: 3 }).length)
