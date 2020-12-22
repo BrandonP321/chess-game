@@ -63,7 +63,14 @@ export default function GameBoard() {
                     piece.currentLocation.number === newLocation.number) {
                     // if piece being moved is a knight, we don't need to worry about a path being blocked by a friendly piece
                     if (chosenPiece.pieceType === 'knight') {
-                        return false
+                        // check if piece is of same color as knight
+                        if (piece.color === chosenPiece.color) {
+                            // if pieces are same color, don't let knight move there
+                            return false
+                        } else {
+                            // if pieces are different colors, allow knight to move there
+                            return true
+                        }
                     } else if (piece.color === chosenPiece.color) {
                         // add location of piece to blockedSpots array
                         blockedSpots.push(piece.currentLocation)
@@ -127,8 +134,6 @@ export default function GameBoard() {
             }
         }
     }
-
-    console.log(getPotentialMoves({ letter: 'b', number: 1 }))
 
     const letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
     // create each square of board and push it to an array
