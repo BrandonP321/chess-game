@@ -72,63 +72,64 @@ class Board {
 }
 
 
+module.exports = Board;
 
 
 
 
-// add all pieces to board
-const letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
+// // add all pieces to board
+// const letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
 
-const pawns = []
-// create white pawns and push them to the array
-for (let i = 0; i < 8; i++) {
-    let newPawn = new Pawn({ letter: letters[i], number: 2 }, 'white')
+// const pawns = []
+// // create white pawns and push them to the array
+// for (let i = 0; i < 8; i++) {
+//     let newPawn = new Pawn({ letter: letters[i], number: 2 }, 'white')
     
-    pawns.push(newPawn)
-}
-// create black pawns and push them to the array
-for (let i = 0; i < 8; i++) {
-    let newPawn = new Pawn({ letter: letters[i], number: 7 }, 'black')
+//     pawns.push(newPawn)
+// }
+// // create black pawns and push them to the array
+// for (let i = 0; i < 8; i++) {
+//     let newPawn = new Pawn({ letter: letters[i], number: 7 }, 'black')
     
-    pawns.push(newPawn)
-}
+//     pawns.push(newPawn)
+// }
 
-const knights = [
-    new Knight({ letter: 'b', number: 1 }, 'white'),
-    new Knight({ letter: 'g', number: 1 }, 'white'),
-    new Knight({ letter: 'b', number: 8 }, 'black'),
-    new Knight({ letter: 'g', number: 8 }, 'black')
-]
+// const knights = [
+//     new Knight({ letter: 'b', number: 1 }, 'white'),
+//     new Knight({ letter: 'g', number: 1 }, 'white'),
+//     new Knight({ letter: 'b', number: 8 }, 'black'),
+//     new Knight({ letter: 'g', number: 8 }, 'black')
+// ]
 
-const rooks = [
-    new Rook({ letter: 'a', number: 1 }, 'white'),
-    new Rook({ letter: 'h', number: 1 }, 'white'),
-    new Rook({ letter: 'a', number: 8 }, 'black'),
-    new Rook({ letter: 'h', number: 8 }, 'black'),
-]
+// const rooks = [
+//     new Rook({ letter: 'a', number: 1 }, 'white'),
+//     new Rook({ letter: 'h', number: 1 }, 'white'),
+//     new Rook({ letter: 'a', number: 8 }, 'black'),
+//     new Rook({ letter: 'h', number: 8 }, 'black'),
+// ]
 
-const bishops = [
-    new Bishop({ letter: 'c', number: 1 }, 'white'),
-    new Bishop({ letter: 'f', number: 1 }, 'white'),
-    new Bishop({ letter: 'c', number: 8 }, 'black'),
-    new Bishop({ letter: 'f', number: 8 }, 'black'),
-]
+// const bishops = [
+//     new Bishop({ letter: 'c', number: 1 }, 'white'),
+//     new Bishop({ letter: 'f', number: 1 }, 'white'),
+//     new Bishop({ letter: 'c', number: 8 }, 'black'),
+//     new Bishop({ letter: 'f', number: 8 }, 'black'),
+// ]
 
-const queens = [
-    new Queen({ letter: 'd', number: 1 }, 'white'),
-    new Queen({ letter: 'd', number: 8 }, 'black')
-]
+// const queens = [
+//     new Queen({ letter: 'd', number: 1 }, 'white'),
+//     new Queen({ letter: 'd', number: 8 }, 'black')
+// ]
 
-// push pieces from their arrays to the new Board
-// const board = new Board([...pawns, ...knights, ...rooks, ...bishops, ...queens])
+// // push pieces from their arrays to the new Board
+// // const board = new Board([...pawns, ...knights, ...rooks, ...bishops, ...queens])
 
-const board = new Board([
-    new Bishop({ letter: 'd', number: 3}, 'white'), 
-    new Pawn({ letter: 'b', number: 1 }, 'white'),
-    new Pawn({ letter: 'a', number: 6 }, 'white'),
-    new Pawn({ letter: 'f', number: 1 }, 'white'),
-    new Pawn({ letter: 'f', number: 5 }, 'white'),
-])
+// const board = new Board([
+//     new Rook({ letter: 'd', number: 3}, 'white'), 
+//     new Pawn({ letter: 'f', number: 3 }, 'white'),
+//     new Pawn({ letter: 'd', number: 1 }, 'white'),
+//     new Pawn({ letter: 'a', number: 3 }, 'white'),
+//     new Pawn({ letter: 'd', number: 7 }, 'white'),
+// ])
 
-console.log('moves:')
-console.log(board.getPotentialMoves({ letter: 'd', number: 3 }).length)
+// console.log('moves:')
+// console.log(board.getPotentialMoves({ letter: 'd', number: 3 }).length)
