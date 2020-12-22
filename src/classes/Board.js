@@ -2,6 +2,7 @@ const Pawn = require('./Pawn')
 const Knight = require('./Knight')
 const Rook = require('./Rook')
 const Bishop = require('./Bishop')
+const Queen = require('./Queen')
 
 
 class Board {
@@ -55,6 +56,7 @@ class Board {
             return true
         })
         
+        console.log('spots before removing paths:')
         // if any paths are blocked, remove the blocked spots from possible moves
         if (blockedSpots.length > 0) {
             availableSpots = chosenPiece.removeBlockedPaths(blockedSpots, availableSpots)
@@ -77,34 +79,33 @@ class Board {
 // add all pieces to board
 const letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
 
-// const knights = [
-//     new Knight({ letter: 'b', number: 1 }, 'white'),
-//     new Knight({ letter: 'g', number: 1 }, 'white'),
-//     new Knight({ letter: 'b', number: 8 }, 'black'),
-//     new Knight({ letter: 'g', number: 8 }, 'black')
-// ]
+const pawns = []
+// create white pawns and push them to the array
+for (let i = 0; i < 8; i++) {
+    let newPawn = new Pawn({ letter: letters[i], number: 2 }, 'white')
+    
+    pawns.push(newPawn)
+}
+// create black pawns and push them to the array
+for (let i = 0; i < 8; i++) {
+    let newPawn = new Pawn({ letter: letters[i], number: 7 }, 'black')
+    
+    pawns.push(newPawn)
+}
 
-// const pawns = []
+const knights = [
+    new Knight({ letter: 'b', number: 1 }, 'white'),
+    new Knight({ letter: 'g', number: 1 }, 'white'),
+    new Knight({ letter: 'b', number: 8 }, 'black'),
+    new Knight({ letter: 'g', number: 8 }, 'black')
+]
 
-// // create white pawns and push them to the board
-// for (let i = 0; i < 8; i++) {
-//     let newPawn = new Pawn({ letter: letters[i], number: 2 }, 'white')
-
-//     pawns.push(newPawn)
-// }
-// // create black pawns and push them to the board
-// for (let i = 0; i < 8; i++) {
-//     let newPawn = new Pawn({ letter: letters[i], number: 7 }, 'black')
-
-//     pawns.push(newPawn)
-// }
-
-// const rooks = [
-//     new Rook({ letter: 'a', number: 1 }, 'white'),
-//     new Rook({ letter: 'h', number: 1 }, 'white'),
-//     new Rook({ letter: 'a', number: 8 }, 'black'),
-//     new Rook({ letter: 'h', number: 8 }, 'black'),
-// ]
+const rooks = [
+    new Rook({ letter: 'a', number: 1 }, 'white'),
+    new Rook({ letter: 'h', number: 1 }, 'white'),
+    new Rook({ letter: 'a', number: 8 }, 'black'),
+    new Rook({ letter: 'h', number: 8 }, 'black'),
+]
 
 const bishops = [
     new Bishop({ letter: 'c', number: 1 }, 'white'),
@@ -113,10 +114,25 @@ const bishops = [
     new Bishop({ letter: 'f', number: 8 }, 'black'),
 ]
 
-// push pieces from their arrays to the new Board
-// const board = new Board([...pawns, ...knights, ...rooks])
+const queens = [
+    new Queen({ letter: 'd', number: 1 }, 'white'),
+    new Queen({ letter: 'd', number: 8 }, 'black')
+]
 
-const board = new Board([...bishops, new Pawn({ letter: 'e', number: 3 }, 'black')])
+// push pieces from their arrays to the new Board
+// const board = new Board([...pawns, ...knights, ...rooks, ...bishops, ...queens])
+
+const board = new Board([
+    new Queen({ letter: 'd', number: 4}, 'white'), 
+    new Pawn({ letter: 'd', number: 1 }, 'white'),
+    new Pawn({ letter: 'd', number: 7 }, 'white'),
+    new Pawn({ letter: 'b', number: 2 }, 'white'),
+    new Pawn({ letter: 'b', number: 6 }, 'white'),
+    new Pawn({ letter: 'a', number: 4 }, 'white'),
+    new Pawn({ letter: 'f', number: 2 }, 'white'),
+    new Pawn({ letter: 'g', number: 4 }, 'white'),
+    new Pawn({ letter: 'g', number: 7 }, 'white'),
+])
 
 console.log('moves:')
-console.log(board.getPotentialMoves({ letter: 'c', number: 1 }))
+console.log(board.getPotentialMoves({ letter: 'd', number: 4 }).length)
