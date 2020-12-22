@@ -16,6 +16,7 @@ export default function GameBoard() {
 
     const [pieces, setPieces] = useState(createNewBoard())
     const [currentlySelectedPiece, setCurrentlySelectedPiece] = useState({})
+    const [slectedPieceOpenSpots, setSelectedPieceOpenSpots] = useState([])
 
 
     // update piece locations on page when location in state changes
@@ -27,7 +28,7 @@ export default function GameBoard() {
             // create element to contain piece icon
             const iconEle = document.createElement('div')
             iconEle.innerHTML = pieceIcons[piece.pieceType]
-            iconEle.className = 'piece-icon-container'
+            iconEle.className = 'piece-icon-container ' + `icon-container-${piece.color}`
 
             // append piece to square on board
             locationNode.appendChild(iconEle)
@@ -119,7 +120,11 @@ export default function GameBoard() {
                 // update currently selected square in state
                 setCurrentlySelectedPiece({ letter: locationLetter, number: locationNumber })
                 const openSquares = getPotentialMoves({ letter: locationLetter, number: locationNumber })
-                console.log(openSquares)
+                
+                // set array of available spots in state
+                setSelectedPieceOpenSpots(openSquares)
+
+                // display a ciricle over each available spot on board
                 openSquares.forEach(square => {
                     // identify square at the given location
                     const squareNode = document.querySelector(`[data-location=${square.letter + square.number}]`)

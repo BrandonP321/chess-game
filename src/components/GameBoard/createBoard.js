@@ -9,7 +9,7 @@ import Queen from '../../classes/Queen'
 export default function createNewBoard() {
     const letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
     
-    const pawns = [new Pawn({letter: 'c', number: 3}, 'black')]
+    const pawns = []
     // create white pawns and push them to the array
     for (let i = 0; i < 8; i++) {
         let newPawn = new Pawn({ letter: letters[i], number: 2 }, 'white')
