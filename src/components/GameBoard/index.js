@@ -14,7 +14,6 @@ export default function GameBoard() {
         pawn: '<i class="fas fa-chess-pawn"></i>'
     }
 
-
     const [pieces, setPieces] = useState(createNewBoard())
     const [currentlySelectedPiece, setCurrentlySelectedPiece] = useState({})
 
@@ -70,6 +69,11 @@ export default function GameBoard() {
                         blockedSpots.push(piece.currentLocation)
                         // return false to remove this spot option
                         return false
+                    } else if (piece.color !== chosenPiece.color) {
+                        // if piece is an enemy piece, add that piece to blocked spots but keep the spot as available
+                        // this will restrict player from accessing any spots beyond the enemy
+                        blockedSpots.push(piece.currentLocation)
+                        return true;
                     }
                 }
             }
@@ -108,7 +112,7 @@ export default function GameBoard() {
                 // update currently selected square in state
                 setCurrentlySelectedPiece({ letter: locationLetter, number: locationNumber })
                 const openSquares = getPotentialMoves({ letter: locationLetter, number: locationNumber })
-
+                console.log(openSquares)
                 openSquares.forEach(square => {
                     // identify square at the given location
                     const squareNode = document.querySelector(`[data-location=${square.letter + square.number}]`)

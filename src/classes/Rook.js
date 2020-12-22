@@ -28,19 +28,19 @@ class Rook extends Piece {
                 
                 if (spot.number > this.currentLocation.number) {
                     // if blocked spot number is greater than current number, block all paths above current spot
-                    availableSpots = availableSpots.filter(location => location.number < spot.number)
+                    availableSpots = availableSpots.filter(location => location.number <= spot.number)
                 } else {
                     // blocked spot number is less than current number, block paths below current spot
-                    availableSpots = availableSpots.filter(location => location.number > spot.number)
+                    availableSpots = availableSpots.filter(location => location.number >= spot.number)
                 }
             } else {
                 // letters are different so blocked path is vertical
                 if (spot.letter > this.currentLocation.letter) {
                     // blocked spot letter is greater so must be to right
-                    availableSpots = availableSpots.filter(location => location.letter < spot.letter)
+                    availableSpots = availableSpots.filter(location => location.letter <= spot.letter)
                 } else {
                     // otherwise blocked path must be to the left
-                    availableSpots = availableSpots.filter(location => location.letter > spot.letter)
+                    availableSpots = availableSpots.filter(location => location.letter >= spot.letter)
                 }
             }
         })

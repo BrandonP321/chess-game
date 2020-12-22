@@ -11,11 +11,11 @@ export default function createNewBoard() {
     
     const pawns = []
     // create white pawns and push them to the array
-    for (let i = 0; i < 8; i++) {
-        let newPawn = new Pawn({ letter: letters[i], number: 2 }, 'white')
+    // for (let i = 0; i < 8; i++) {
+    //     let newPawn = new Pawn({ letter: letters[i], number: 2 }, 'white')
         
-        pawns.push(newPawn)
-    }
+    //     pawns.push(newPawn)
+    // }
     // create black pawns and push them to the array
     for (let i = 0; i < 8; i++) {
         let newPawn = new Pawn({ letter: letters[i], number: 7 }, 'black')
