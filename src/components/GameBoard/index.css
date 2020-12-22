@@ -1,0 +1,59 @@
+.board {
+    display: flex;
+    flex-wrap: wrap;
+    width: 850px;
+    margin: 0 auto;
+}
+
+.board-square {
+    position: relative;
+    width: calc(100% / 8);
+    height: calc(850px / 8);
+}
+
+.piece-icon-container {
+    width: 100%;
+    height: 100%;
+    text-align: center;
+}
+
+.piece-icon-container i {
+    position: relative;
+    font-size: 80px;
+    top: 10px;
+}
+
+.square-available-circle {
+    position: absolute;
+    top: 5%;
+    left: 5%;
+    width: 90%;
+    height: 90%;
+    background-color: salmon;
+    opacity: 0;
+    border-radius: 50%;
+}
+
+.square-clickable {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    background-color: black;
+    opacity: 0;
+    z-index: 100;
+    transition: opacity .1s;
+}
+
+.square-clickable:hover {
+    opacity: .2;
+}
+
+.square-dark {
+    background-color: #503019;
+}
+
+.square-light {
+    background-color: rgb(228, 228, 228);
+}
