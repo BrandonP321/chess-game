@@ -4,52 +4,6 @@ import React, { useState, useEffect, Component } from 'react'
 import createNewBoard from './createBoard'
 import './index.css'
 
-// export default function GameBoard() {
-//     // state containing a Board class instance
-//     const [pieces, setPieces] = useState(new Board(createNewBoard()))
-
-//     useEffect(() => {
-//         // const board = new Board([new Queen({ letter: 'd', number: 1 }, 'white')])
-//         // console.log(board)
-//         // console.log(board.getPotentialMoves({ letter: 'd', number: 1 }))
-//     }, [])
-
-//     // update locations on board when a piece has it's position changed
-//     useEffect(() => {
-//         console.log('change')
-//     }, [pieces])
-
-//     // console.log(pieces)
-//     // console.log(pieces.getPotentialMoves({letter: 'b', number: 1}))
-//     // pieces.addPiece({letter: 'd', number: 2})
-
-
-//     const letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
-//     // create each square of board and push it to an array
-//     const boardSquares = []
-
-//     let isDarkSquare = true
-//     for (let i = 8; i > 0; i--) {
-//         letters.forEach(letter => {
-//             boardSquares.push(<div className={isDarkSquare ? 'board-square square-light' : 'board-square square-dark'} data-letter={letter} data-number={i}>
-//                 <div className='square-available-circle'></div>
-//             </div>)
-//             // only change isDarkSquare boolean if not on last letter
-//             if (letter !== 'h') {
-//                 isDarkSquare = !isDarkSquare
-//             }
-//         })
-//     }
-//     // console.log(boardSquares)
-
-//     return (
-//         <div className='board'>
-//             {boardSquares.map(square => square)}
-//         </div>
-//     )
-// }
-
-
 export default function GameBoard() {
     const pieceIcons = {
         rook: '<i class="fas fa-chess-rook"></i>',
@@ -60,7 +14,10 @@ export default function GameBoard() {
         pawn: '<i class="fas fa-chess-pawn"></i>'
     }
 
+
     const [pieces, setPieces] = useState(createNewBoard())
+    const [currentlySelectedPiece, setCurrentlySelectedPiece] = useState({})
+
 
     // update piece locations on page when location in state changes
     useEffect(() => {
@@ -72,7 +29,7 @@ export default function GameBoard() {
             const iconEle = document.createElement('div')
             iconEle.innerHTML = pieceIcons[piece.pieceType]
             iconEle.className = 'piece-icon-container'
-            
+
             // append piece to square on board
             locationNode.appendChild(iconEle)
         })
@@ -89,7 +46,7 @@ export default function GameBoard() {
     const getPotentialMoves = (pieceLocation) => {
         // find which piece is at the given location
         const chosenPiece = pieces.filter(piece => piece.currentLocation.letter == pieceLocation.letter && piece.currentLocation.number == pieceLocation.number)[0]
-
+        console.log(pieceLocation)
         // get possible locations of piece
         let possibleLocations = chosenPiece.getPossibleMoves()
 
@@ -128,7 +85,45 @@ export default function GameBoard() {
         return availableSpots
     }
 
-    console.log(getPotentialMoves({letter: 'b', number: 1}))
+    const squareClick = (event) => {
+        // get location of square clicked
+        const locationLetter = event.target.parentElement.getAttribute('data-letter')
+        const locationNumber = parseInt(event.target.parentElement.getAttribute('data-number'))
+        const location = locationLetter + locationNumber
+
+        // if user is currently searching for a square to move a piece to, validate the move
+
+        // if user is clicking a piece to see where it can move to, show available options
+        // TODO: add if statement to this later
+
+        // check that square clicked has a piece on it
+        if (pieces.filter(piece => piece.currentLocation.letter === locationLetter && piece.currentLocation.number === locationNumber).length > 0) {
+            // first make sure no squares are being shown as having an open spot
+            const allSquares = document.querySelectorAll('.square-available-circle')
+            allSquares.forEach(square => {
+                square.style.opacity = 0
+            })
+            // if user is clicking a square other than the currently selected square, show possible move locations
+            console.log(locationLetter, currentlySelectedPiece.letter)
+            console.log(locationNumber, currentlySelectedPiece.number)
+            if (locationLetter !== currentlySelectedPiece.letter || locationNumber !== currentlySelectedPiece.number) {
+                // update currently selected square in state
+                setCurrentlySelectedPiece({ letter: locationLetter, number: locationNumber })
+                const openSquares = getPotentialMoves({ letter: locationLetter, number: locationNumber })
+
+                openSquares.forEach(square => {
+                    // identify square at the given location
+                    const squareNode = document.querySelector(`[data-location=${square.letter + square.number}]`)
+                    // reference circle element showing that the square is open
+                    const squareCircle = squareNode.children[0]
+                    // give circle and opacity of .6
+                    squareCircle.style.opacity = .6
+                })
+            } 
+        }
+    }
+
+    console.log(getPotentialMoves({ letter: 'b', number: 1 }))
 
     const letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
     // create each square of board and push it to an array
@@ -139,6 +134,7 @@ export default function GameBoard() {
         letters.forEach(letter => {
             boardSquares.push(<div className={isDarkSquare ? 'board-square square-light' : 'board-square square-dark'} data-letter={letter} data-number={i} data-location={letter + i}>
                 <div className='square-available-circle'></div>
+                <div className='square-clickable' onClick={squareClick}></div>
             </div>)
             // only change isDarkSquare boolean if not on last letter
             if (letter !== 'h') {
