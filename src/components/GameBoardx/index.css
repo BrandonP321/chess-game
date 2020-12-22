@@ -10,16 +10,6 @@
     height: calc(850px / 8);
 }
 
-.piece-icon-container {
-    text-align: center;
-}
-
-.piece-icon-container i {
-    position: relative;
-    font-size: 80px;
-    top: 10px;
-}
-
 .square-dark {
     background-color: #503019;
 }
