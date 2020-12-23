@@ -15,8 +15,16 @@
     color: black;
 }
 
+.icon-container-black i {
+    /* -webkit-text-stroke: 1px white; */
+}
+
 .icon-container-white {
     color: white;
+}
+
+.icon-container-white i {
+    -webkit-text-stroke: 2px black;
 }
 
 .piece-icon-container {
@@ -60,9 +68,9 @@
 }
 
 .square-dark {
-    background-color: #503019;
+    background-color: #b58863;
 }
 
 .square-light {
-    background-color: rgb(228, 228, 228);
+    background-color: #efd8b5;
 }

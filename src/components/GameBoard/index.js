@@ -15,10 +15,8 @@ export default function GameBoard() {
     }
 
     // this boolean is used to control useEffect when user moves a piece
-    // let pieceNeedsToBeRemoved = false // is not a state to avoid async issues
     const [doRemovePiece, setDoRemovePiece] = useState(false)
     
-
     const [pieces, setPieces] = useState(createNewBoard())
     const [currentlySelectedPiece, setCurrentlySelectedPiece] = useState({})
     const [selectedPieceOpenSpots, setSelectedPieceOpenSpots] = useState([])
@@ -30,11 +28,8 @@ export default function GameBoard() {
     }, [])
 
     useEffect(() => {
-        console.log('hell')
-        console.log(doRemovePiece)
         // only run code if a piece needs to be removed
         if (doRemovePiece) {
-            console.log('0')
             // selectedPiece.setCurrentLocation({ letter: newLocation.letter, number: newLocation.number })
             renderPieces();
             setDoRemovePiece(false)
@@ -71,21 +66,45 @@ export default function GameBoard() {
         setSelectedPieceOpenSpots([])
     }
 
+    // function to get reference to piece instance in state array of all pieces
+    const getPieceReference = (location) => {
+        const pieceArr = pieces.filter(piece => {
+            const { letter, number } = piece.currentLocation;
+            return letter === location.letter && number === location.number
+        })
+        const piece = pieceArr[0]
+        return piece
+    }
+
+    const updatePieceLocation = (currentLocation, newLocation) => {
+        const piece = getPieceReference(currentLocation)
+
+        piece.currentLocation = { letter: newLocation.letter, number: newLocation.number }
+    }
+
     const addPiece = (piece) => {
         setPieces([...pieces, piece])
     }
 
     const removePiece = (pieceLocation) => {
-        
+        // get pieces from array of pieces excpet piece to remove
+        const newPiecesArr = pieces.filter(piece => {
+            const { letter, number } = piece.currentLocation
+            return letter !== pieceLocation.letter || number !== pieceLocation.number
+        })
+        // update the state with the new array of pieces
+        setPieces(newPiecesArr)
+
+        return newPiecesArr
     }
 
     const movePiece = (selectedPiece, newLocation) => {
         // get piece at clicked spot if any, will be null if no piece
-        const pieceAtNewSpot = pieces.filter(piece => piece.currentLocation.letter === newLocation.letter && piece.currentLocation.number === newLocation.number)[0]
-        console.log(pieceAtNewSpot)
+        const pieceAtNewSpot = getPieceReference(newLocation)
 
         // this is an array of length 1 if square is open
         const newSquareisOpen = selectedPieceOpenSpots.filter(spot => spot.letter === newLocation.letter && spot.number === newLocation.number)
+        
         // if new square is not available, return false
         if (newSquareisOpen.length === 0) {
             return false
@@ -95,14 +114,12 @@ export default function GameBoard() {
             if (pieceAtNewSpot) {
                 // signify that a piece is being moved
                 setDoRemovePiece(true)
-                
-                const newPiecesArr = pieces.filter(piece => piece.currentLocation.letter !== newLocation.letter || piece.currentLocation.number !== newLocation.number)
-                
-                selectedPiece.setCurrentLocation({ letter: newLocation.letter, number: newLocation.number })
-                setPieces(newPiecesArr)
+                // remove piece at the new location
+                removePiece(newLocation)
+                // update the location of the moved piece
+                updatePieceLocation(selectedPiece.currentLocation, newLocation)
                 // a useEffect now updates the piece's location and render's the pieces
             } else {
-                console.log("didn't need to update state")
                 // if no piece is at new square, just update the pieces on the board
                 selectedPiece.setCurrentLocation({ letter: newLocation.letter, number: newLocation.number })
                 renderPieces();
@@ -113,7 +130,7 @@ export default function GameBoard() {
 
     const getPotentialMoves = (pieceLocation) => {
         // find which piece is at the given location
-        const chosenPiece = pieces.filter(piece => piece.currentLocation.letter == pieceLocation.letter && piece.currentLocation.number == pieceLocation.number)[0]
+        const chosenPiece = getPieceReference(pieceLocation)
         // get possible locations of piece
         let possibleLocations = chosenPiece.getPossibleMoves()
 
