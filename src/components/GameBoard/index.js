@@ -14,9 +14,11 @@ export default function GameBoard() {
         pawn: '<i class="fas fa-chess-pawn piece-icon"></i>'
     }
 
+    const letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
+
     // this boolean is used to control useEffect when user moves a piece
     const [doRemovePiece, setDoRemovePiece] = useState(false)
-    
+
     const [pieces, setPieces] = useState(createNewBoard())
     const [currentlySelectedPiece, setCurrentlySelectedPiece] = useState({})
     const [selectedPieceOpenSpots, setSelectedPieceOpenSpots] = useState([])
@@ -104,12 +106,11 @@ export default function GameBoard() {
 
         // this is an array of length 1 if square is open
         const newSquareisOpen = selectedPieceOpenSpots.filter(spot => spot.letter === newLocation.letter && spot.number === newLocation.number)
-        
+
         // if new square is not available, return false
         if (newSquareisOpen.length === 0) {
             return false
         } else {
-            console.log('space is open')
             // if there is another piece on that square, remove it from the state
             if (pieceAtNewSpot) {
                 // signify that a piece is being moved
@@ -139,11 +140,29 @@ export default function GameBoard() {
         if (chosenPiece.pieceType === 'pawn') {
             // if piece is white and at number of 2, allow 2 square jump
             if (chosenPiece.color === 'white' && chosenPiece.currentLocation.number === 2) {
-                possibleLocations.push({ letter: chosenPiece.currentLocation.letter, number: 4})
+                possibleLocations.push({ letter: chosenPiece.currentLocation.letter, number: 4 })
             }
             // if piece is black and at number of 7, allow 2 square jump
             else if (chosenPiece.color === 'black' && chosenPiece.currentLocation.number === 7) {
-                possibleLocations.push({ letter: chosenPiece.currentLocation.letter, number: 5})
+                possibleLocations.push({ letter: chosenPiece.currentLocation.letter, number: 5 })
+            }
+
+            // if piece is white and there is a piece up and to it's diagonal, add that square as an option
+            if (chosenPiece.color === 'white') {
+                // filter pieces for any pieces to the pawn's diagonal
+                const diagonalPieces = pieces.filter(pieces => {
+                    const { letter, number } = pieces.currentLocation
+                    const letterIndex = letters.indexOf(chosenPiece.currentLocation.letter)
+                    const upAndLeftSquareLetter = letters[letterIndex - 1]
+                    const upAndRightSquareLetter = letters[letterIndex + 1]
+                    console.log(upAndLeftSquareLetter)
+                    return (letter === upAndLeftSquareLetter || letter === upAndRightSquareLetter) && number === chosenPiece.currentLocation.number + 1
+                })
+                diagonalPieces.forEach(piece => possibleLocations.push(piece.currentLocation))
+            }
+            // allow diagonal attacks for black pieces as well
+            else if (chosenPiece.color === 'black') {
+
             }
         }
 
@@ -162,10 +181,13 @@ export default function GameBoard() {
                     // if piece being moved is a knight, we don't need to worry about a path being blocked by a friendly piece
                     if (chosenPiece.pieceType === 'knight') {
                         // check if piece is of same color as knight
+
                         if (piece.color === chosenPiece.color) {
+                            console.log(1)
                             // if pieces are same color, don't let knight move there
                             return false
                         } else {
+                            console.log(2)
                             // if pieces are different colors, allow knight to move there
                             return true
                         }
@@ -175,6 +197,7 @@ export default function GameBoard() {
                         // return false to remove this spot option
                         return false
                     } else if (piece.color !== chosenPiece.color) {
+                        console.log(3)
                         // if piece is an enemy piece, add that piece to blocked spots but keep the spot as available
                         // this will restrict player from accessing any spots beyond the enemy
                         blockedSpots.push(piece.currentLocation)
@@ -206,7 +229,6 @@ export default function GameBoard() {
         // if state has any keys, the user must be looking to move a piece somewhere else
         // don't attempt to move if user is reclicking selected piece or pieces are same color
         if (Object.keys(currentlySelectedPiece).length > 0 && !piecesAreSameTeam && (locationLetter !== currentlySelectedPiece.letter || locationNumber !== currentlySelectedPiece.number)) {
-            console.log('user trying to move')
             // move character to new location if spot is available
             movePiece(selectedPiece, { letter: locationLetter, number: locationNumber })
         }
@@ -228,10 +250,8 @@ export default function GameBoard() {
 
                 // set array of available spots in state
                 setSelectedPieceOpenSpots(openSquares)
-                console.log(openSquares)
                 // display a ciricle over each available spot on board
                 openSquares.forEach(square => {
-                    console.log('square', square)
                     // identify square at the given location
                     const squareNode = document.querySelector(`[data-location=${square.letter + square.number}]`)
                     // reference circle element showing that the square is open
@@ -240,14 +260,12 @@ export default function GameBoard() {
                     squareCircle.style.opacity = .6
                 })
             } else {
-                 console.log('i should not be seen')
                 // if user is clicking the piece they already have selected, reset state to nothing
                 setCurrentlySelectedPiece({})
             }
         }
     }
 
-    const letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
     // create each square of board and push it to an array
     const boardSquares = []
 

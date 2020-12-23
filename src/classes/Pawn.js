@@ -11,20 +11,28 @@ class Pawn extends Piece {
             }
         ]
     }
-    // getPossibleMoves() {
-    //     // can only move up one number
-    //     return { letter: this.currentLocation.letter, number: this.currentLocation.number + 1 }
-    // }
+    
+    removeBlockedPaths(blockedSpotsArr, availableSpotsArr) {
+        let availableSpots = availableSpotsArr;
 
-    // setCurrentLocation(newLocation) {
-    //     this.currentLocation = newLocation
-    // }
+        blockedSpotsArr.forEach(spot => {
+            // if spot is on a different letter square than current, ignore since that piece can be attacked
+            if (spot.letter !== this.currentLocation.letter) {
+                return false
+            }
+            // if blocked spot is above current, block all spots above it including it
+            if (spot.number > this.currentLocation.number) {
+                console.log('i should show up')
+                console.log(availableSpots)
+                availableSpots = availableSpots.filter(openSpot => openSpot.number >= spot.number && openSpot.letter !== this.currentLocation.letter)
+            } else {
+                // if blocked spot is below current, block all spots beneath it including it
+                availableSpots = availableSpots.filter(openSpot => openSpot.number <= spot.number && openSpot.letter !== this.currentLocation.letter)
+            }
+        })
+
+        return availableSpots
+    }
 }
 
 module.exports = Pawn;
-
-// let pawn = new Pawn({ letter: 'b', number: 2}, 'white')
-
-// pawn.getPossibleMoves() // letter: b, number: 3
-
-// console.log(pawn)
