@@ -131,8 +131,21 @@ export default function GameBoard() {
     const getPotentialMoves = (pieceLocation) => {
         // find which piece is at the given location
         const chosenPiece = getPieceReference(pieceLocation)
+
         // get possible locations of piece
         let possibleLocations = chosenPiece.getPossibleMoves()
+
+        // if piece is a pawn at it's starting spot, allow a two square move
+        if (chosenPiece.pieceType === 'pawn') {
+            // if piece is white and at number of 2, allow 2 square jump
+            if (chosenPiece.color === 'white' && chosenPiece.currentLocation.number === 2) {
+                possibleLocations.push({ letter: chosenPiece.currentLocation.letter, number: 4})
+            }
+            // if piece is black and at number of 7, allow 2 square jump
+            else if (chosenPiece.color === 'black' && chosenPiece.currentLocation.number === 7) {
+                possibleLocations.push({ letter: chosenPiece.currentLocation.letter, number: 5})
+            }
+        }
 
         // locations of friendly pieces blocking a path
         const blockedSpots = []
@@ -143,7 +156,7 @@ export default function GameBoard() {
             for (var i = 0; i < pieces.length; i++) {
                 let piece = pieces[i]
 
-                // if piece's location matches potential location and is not friendly
+                // check if piece's location matches potential location and is not friendly
                 if (piece.currentLocation.letter === newLocation.letter &&
                     piece.currentLocation.number === newLocation.number) {
                     // if piece being moved is a knight, we don't need to worry about a path being blocked by a friendly piece
@@ -215,9 +228,10 @@ export default function GameBoard() {
 
                 // set array of available spots in state
                 setSelectedPieceOpenSpots(openSquares)
-
+                console.log(openSquares)
                 // display a ciricle over each available spot on board
                 openSquares.forEach(square => {
+                    console.log('square', square)
                     // identify square at the given location
                     const squareNode = document.querySelector(`[data-location=${square.letter + square.number}]`)
                     // reference circle element showing that the square is open
