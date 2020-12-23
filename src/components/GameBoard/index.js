@@ -162,7 +162,15 @@ export default function GameBoard() {
             }
             // allow diagonal attacks for black pieces as well
             else if (chosenPiece.color === 'black') {
-
+                // filter pieces for any pieces to the pawn's diagonal
+                const diagonalPieces = pieces.filter(pieces => {
+                    const { letter, number } = pieces.currentLocation
+                    const letterIndex = letters.indexOf(chosenPiece.currentLocation.letter)
+                    const downAndLeftSquareLetter = letters[letterIndex - 1]
+                    const downAndRightSquareLetter = letters[letterIndex + 1]
+                    return (letter === downAndLeftSquareLetter || letter === downAndRightSquareLetter) && number === chosenPiece.currentLocation.number -1
+                })
+                diagonalPieces.forEach(piece => possibleLocations.push(piece.currentLocation))
             }
         }
 
@@ -183,11 +191,9 @@ export default function GameBoard() {
                         // check if piece is of same color as knight
 
                         if (piece.color === chosenPiece.color) {
-                            console.log(1)
                             // if pieces are same color, don't let knight move there
                             return false
                         } else {
-                            console.log(2)
                             // if pieces are different colors, allow knight to move there
                             return true
                         }
@@ -197,7 +203,6 @@ export default function GameBoard() {
                         // return false to remove this spot option
                         return false
                     } else if (piece.color !== chosenPiece.color) {
-                        console.log(3)
                         // if piece is an enemy piece, add that piece to blocked spots but keep the spot as available
                         // this will restrict player from accessing any spots beyond the enemy
                         blockedSpots.push(piece.currentLocation)
