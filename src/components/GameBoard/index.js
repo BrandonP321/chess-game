@@ -6,21 +6,48 @@ import './index.css'
 
 export default function GameBoard() {
     const pieceIcons = {
-        rook: '<i class="fas fa-chess-rook"></i>',
-        knight: '<i class="fas fa-chess-knight"></i>',
-        bishop: '<i class="fas fa-chess-bishop"></i>',
-        queen: '<i class="fas fa-chess-queen"></i>',
-        king: '<i class="fas fa-chess-king"></i>',
-        pawn: '<i class="fas fa-chess-pawn"></i>'
+        rook: '<i class="fas fa-chess-rook piece-icon"></i>',
+        knight: '<i class="fas fa-chess-knight piece-icon"></i>',
+        bishop: '<i class="fas fa-chess-bishop piece-icon"></i>',
+        queen: '<i class="fas fa-chess-queen piece-icon"></i>',
+        king: '<i class="fas fa-chess-king piece-icon"></i>',
+        pawn: '<i class="fas fa-chess-pawn piece-icon"></i>'
     }
+
+    // this boolean is used to control useEffect when user moves a piece
+    // let pieceNeedsToBeRemoved = false // is not a state to avoid async issues
+    const [doRemovePiece, setDoRemovePiece] = useState(false)
+    
 
     const [pieces, setPieces] = useState(createNewBoard())
     const [currentlySelectedPiece, setCurrentlySelectedPiece] = useState({})
-    const [slectedPieceOpenSpots, setSelectedPieceOpenSpots] = useState([])
+    const [selectedPieceOpenSpots, setSelectedPieceOpenSpots] = useState([])
 
 
     // update piece locations on page when location in state changes
     useEffect(() => {
+        renderPieces()
+    }, [])
+
+    useEffect(() => {
+        console.log('hell')
+        console.log(doRemovePiece)
+        // only run code if a piece needs to be removed
+        if (doRemovePiece) {
+            console.log('0')
+            // selectedPiece.setCurrentLocation({ letter: newLocation.letter, number: newLocation.number })
+            renderPieces();
+            setDoRemovePiece(false)
+        }
+    }, [pieces])
+
+    // function to render all pieces on board
+    const renderPieces = () => {
+        // clear all pieces off of board before rendering them back on board
+        document.querySelectorAll('.piece-icon-container').forEach(iconEle => {
+            iconEle.remove()
+        })
+
         pieces.forEach(piece => {
             const pieceLocation = piece.currentLocation.letter + piece.currentLocation.number
             // square on board for piece to be added to
@@ -33,20 +60,60 @@ export default function GameBoard() {
             // append piece to square on board
             locationNode.appendChild(iconEle)
         })
-    }, [pieces])
+
+        // clear all circles from board
+        document.querySelectorAll('.square-available-circle').forEach(circleEle => {
+            circleEle.style.opacity = 0
+        })
+
+        // reset states
+        setCurrentlySelectedPiece({})
+        setSelectedPieceOpenSpots([])
+    }
 
     const addPiece = (piece) => {
         setPieces([...pieces, piece])
     }
 
     const removePiece = (pieceLocation) => {
-        // remove piece by location
+        
+    }
+
+    const movePiece = (selectedPiece, newLocation) => {
+        // get piece at clicked spot if any, will be null if no piece
+        const pieceAtNewSpot = pieces.filter(piece => piece.currentLocation.letter === newLocation.letter && piece.currentLocation.number === newLocation.number)[0]
+        console.log(pieceAtNewSpot)
+
+        // this is an array of length 1 if square is open
+        const newSquareisOpen = selectedPieceOpenSpots.filter(spot => spot.letter === newLocation.letter && spot.number === newLocation.number)
+        // if new square is not available, return false
+        if (newSquareisOpen.length === 0) {
+            return false
+        } else {
+            console.log('space is open')
+            // if there is another piece on that square, remove it from the state
+            if (pieceAtNewSpot) {
+                // signify that a piece is being moved
+                setDoRemovePiece(true)
+                
+                const newPiecesArr = pieces.filter(piece => piece.currentLocation.letter !== newLocation.letter || piece.currentLocation.number !== newLocation.number)
+                
+                selectedPiece.setCurrentLocation({ letter: newLocation.letter, number: newLocation.number })
+                setPieces(newPiecesArr)
+                // a useEffect now updates the piece's location and render's the pieces
+            } else {
+                console.log("didn't need to update state")
+                // if no piece is at new square, just update the pieces on the board
+                selectedPiece.setCurrentLocation({ letter: newLocation.letter, number: newLocation.number })
+                renderPieces();
+            }
+        }
+
     }
 
     const getPotentialMoves = (pieceLocation) => {
         // find which piece is at the given location
         const chosenPiece = pieces.filter(piece => piece.currentLocation.letter == pieceLocation.letter && piece.currentLocation.number == pieceLocation.number)[0]
-        console.log(pieceLocation)
         // get possible locations of piece
         let possibleLocations = chosenPiece.getPossibleMoves()
 
@@ -102,14 +169,22 @@ export default function GameBoard() {
         const locationLetter = event.target.parentElement.getAttribute('data-letter')
         const locationNumber = parseInt(event.target.parentElement.getAttribute('data-number'))
         const location = locationLetter + locationNumber
+        const pieceAtClickedSquare = pieces.filter(piece => piece.currentLocation.letter === locationLetter && piece.currentLocation.number === locationNumber)[0]
+        const selectedPiece = pieces.filter(piece => piece.currentLocation.letter === currentlySelectedPiece.letter && piece.currentLocation.number === currentlySelectedPiece.number)[0]
+        const piecesAreSameTeam = selectedPiece && pieceAtClickedSquare ? pieceAtClickedSquare.color === selectedPiece.color : false
 
-        // if user is currently searching for a square to move a piece to, validate the move
-
+        // if state has any keys, the user must be looking to move a piece somewhere else
+        // don't attempt to move if user is reclicking selected piece or pieces are same color
+        if (Object.keys(currentlySelectedPiece).length > 0 && !piecesAreSameTeam && (locationLetter !== currentlySelectedPiece.letter || locationNumber !== currentlySelectedPiece.number)) {
+            console.log('user trying to move')
+            // move character to new location if spot is available
+            movePiece(selectedPiece, { letter: locationLetter, number: locationNumber })
+        }
         // if user is clicking a piece to see where it can move to, show available options
         // TODO: add if statement to this later
 
         // check that square clicked has a piece on it
-        if (pieces.filter(piece => piece.currentLocation.letter === locationLetter && piece.currentLocation.number === locationNumber).length > 0) {
+        else if (pieces.filter(piece => piece.currentLocation.letter === locationLetter && piece.currentLocation.number === locationNumber).length > 0) {
             // first make sure no squares are being shown as having an open spot
             const allSquares = document.querySelectorAll('.square-available-circle')
             allSquares.forEach(square => {
@@ -120,7 +195,7 @@ export default function GameBoard() {
                 // update currently selected square in state
                 setCurrentlySelectedPiece({ letter: locationLetter, number: locationNumber })
                 const openSquares = getPotentialMoves({ letter: locationLetter, number: locationNumber })
-                
+
                 // set array of available spots in state
                 setSelectedPieceOpenSpots(openSquares)
 
@@ -133,7 +208,8 @@ export default function GameBoard() {
                     // give circle and opacity of .6
                     squareCircle.style.opacity = .6
                 })
-            }  else {
+            } else {
+                 console.log('i should not be seen')
                 // if user is clicking the piece they already have selected, reset state to nothing
                 setCurrentlySelectedPiece({})
             }
