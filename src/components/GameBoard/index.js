@@ -1,8 +1,11 @@
 import React, { useState, useEffect, Component } from 'react'
 import './index.css'
+import socketIOClient from 'socket.io-client'
 import board from './board'
 // destructure createBoard file for functions to create & manipulate board
 const { createNewBoardPieces, createWhiteTeamBoard, createBlackTeamBoard, getPotentialMoves } = board
+
+const ENDPOINT = 'http://localhost:8000'
 
 export default function GameBoard() {
     const pieceIcons = {
@@ -19,15 +22,43 @@ export default function GameBoard() {
     // this boolean is used to control useEffect when user moves a piece
     const [doRemovePiece, setDoRemovePiece] = useState(false)
 
+    const [team, setTeam] = useState()
+
     const [pieces, setPieces] = useState(createNewBoardPieces())
     const [currentlySelectedPiece, setCurrentlySelectedPiece] = useState({})
     const [selectedPieceOpenSpots, setSelectedPieceOpenSpots] = useState([])
 
+    const [boardSquares, setBoardSquares] = useState(createWhiteTeamBoard())
+
 
     // update piece locations on page when location in state changes
     useEffect(() => {
-        renderPieces()
+        // connect to server main socket
+        const socket = socketIOClient(ENDPOINT)
+
+        // when user connects 
+        socket.on('connect', data => {
+            socket.emit('connectToGame')
+        })
+
+        socket.on('opposingUserMove', data => {
+            console.log(data)
+        })
+
+        // send message to server before user leaves page
+        window.onbeforeunload = () => {
+            socket.emit('userLeaving')
+        }
+
+        // renderPieces()
     }, [])
+
+    // useEffect(() => {
+    //     // when board state is updated, re render pieces to board if board state's length is greater than 0
+    //     if (boardSquares.length > 0) {
+    //         renderPieces()
+    //     }
+    // }, [boardSquares])
 
     useEffect(() => {
         // only run code if a piece needs to be removed
@@ -140,6 +171,7 @@ export default function GameBoard() {
 
         // if state has any keys, the user must be looking to move a piece somewhere else
         // don't attempt to move if user is reclicking selected piece or pieces are same color
+        console.log(currentlySelectedPiece)
         if (Object.keys(currentlySelectedPiece).length > 0 && !piecesAreSameTeam && (locationLetter !== currentlySelectedPiece.letter || locationNumber !== currentlySelectedPiece.number)) {
             // move character to new location if spot is available
             movePiece(selectedPiece, { letter: locationLetter, number: locationNumber })
@@ -179,7 +211,7 @@ export default function GameBoard() {
     }
 
     // array of squares for board if player is team white, will be mapped over to render to page
-    const boardSquares = createWhiteTeamBoard(squareClick)
+    // const boardSquares = createWhiteTeamBoard(squareClick)
     // const boardSquares = createBlackTeamBoard(squareClick)
 
     return (
