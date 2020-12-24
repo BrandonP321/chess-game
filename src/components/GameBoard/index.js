@@ -1,8 +1,8 @@
 import React, { useState, useEffect, Component } from 'react'
-// import Queen from '../../classes/Queen'
-// import Board from '../../classes/Board'
-import createNewBoard from './createBoard'
 import './index.css'
+import board from './board'
+// destructure createBoard file for functions to create & manipulate board
+const { createNewBoardPieces, createWhiteTeamBoard, createBlackTeamBoard, getPotentialMoves } = board
 
 export default function GameBoard() {
     const pieceIcons = {
@@ -19,7 +19,7 @@ export default function GameBoard() {
     // this boolean is used to control useEffect when user moves a piece
     const [doRemovePiece, setDoRemovePiece] = useState(false)
 
-    const [pieces, setPieces] = useState(createNewBoard())
+    const [pieces, setPieces] = useState(createNewBoardPieces())
     const [currentlySelectedPiece, setCurrentlySelectedPiece] = useState({})
     const [selectedPieceOpenSpots, setSelectedPieceOpenSpots] = useState([])
 
@@ -129,99 +129,6 @@ export default function GameBoard() {
 
     }
 
-    const getPotentialMoves = (pieceLocation) => {
-        // find which piece is at the given location
-        const chosenPiece = getPieceReference(pieceLocation)
-
-        // get possible locations of piece
-        let possibleLocations = chosenPiece.getPossibleMoves()
-
-        // if piece is a pawn at it's starting spot, allow a two square move
-        if (chosenPiece.pieceType === 'pawn') {
-            // if piece is white and at number of 2, allow 2 square jump
-            if (chosenPiece.color === 'white' && chosenPiece.currentLocation.number === 2) {
-                possibleLocations.push({ letter: chosenPiece.currentLocation.letter, number: 4 })
-            }
-            // if piece is black and at number of 7, allow 2 square jump
-            else if (chosenPiece.color === 'black' && chosenPiece.currentLocation.number === 7) {
-                possibleLocations.push({ letter: chosenPiece.currentLocation.letter, number: 5 })
-            }
-
-            // if piece is white and there is a piece up and to it's diagonal, add that square as an option
-            if (chosenPiece.color === 'white') {
-                // filter pieces for any pieces to the pawn's diagonal
-                const diagonalPieces = pieces.filter(pieces => {
-                    const { letter, number } = pieces.currentLocation
-                    const letterIndex = letters.indexOf(chosenPiece.currentLocation.letter)
-                    const upAndLeftSquareLetter = letters[letterIndex - 1]
-                    const upAndRightSquareLetter = letters[letterIndex + 1]
-                    console.log(upAndLeftSquareLetter)
-                    return (letter === upAndLeftSquareLetter || letter === upAndRightSquareLetter) && number === chosenPiece.currentLocation.number + 1
-                })
-                diagonalPieces.forEach(piece => possibleLocations.push(piece.currentLocation))
-            }
-            // allow diagonal attacks for black pieces as well
-            else if (chosenPiece.color === 'black') {
-                // filter pieces for any pieces to the pawn's diagonal
-                const diagonalPieces = pieces.filter(pieces => {
-                    const { letter, number } = pieces.currentLocation
-                    const letterIndex = letters.indexOf(chosenPiece.currentLocation.letter)
-                    const downAndLeftSquareLetter = letters[letterIndex - 1]
-                    const downAndRightSquareLetter = letters[letterIndex + 1]
-                    return (letter === downAndLeftSquareLetter || letter === downAndRightSquareLetter) && number === chosenPiece.currentLocation.number -1
-                })
-                diagonalPieces.forEach(piece => possibleLocations.push(piece.currentLocation))
-            }
-        }
-
-        // locations of friendly pieces blocking a path
-        const blockedSpots = []
-
-        // filter possible locations by pieces locations of other pieces on board
-        let availableSpots = possibleLocations.filter(newLocation => {
-            // iterate over pieces on board
-            for (var i = 0; i < pieces.length; i++) {
-                let piece = pieces[i]
-
-                // check if piece's location matches potential location and is not friendly
-                if (piece.currentLocation.letter === newLocation.letter &&
-                    piece.currentLocation.number === newLocation.number) {
-                    // if piece being moved is a knight, we don't need to worry about a path being blocked by a friendly piece
-                    if (chosenPiece.pieceType === 'knight') {
-                        // check if piece is of same color as knight
-
-                        if (piece.color === chosenPiece.color) {
-                            // if pieces are same color, don't let knight move there
-                            return false
-                        } else {
-                            // if pieces are different colors, allow knight to move there
-                            return true
-                        }
-                    } else if (piece.color === chosenPiece.color) {
-                        // add location of piece to blockedSpots array
-                        blockedSpots.push(piece.currentLocation)
-                        // return false to remove this spot option
-                        return false
-                    } else if (piece.color !== chosenPiece.color) {
-                        // if piece is an enemy piece, add that piece to blocked spots but keep the spot as available
-                        // this will restrict player from accessing any spots beyond the enemy
-                        blockedSpots.push(piece.currentLocation)
-                        return true;
-                    }
-                }
-            }
-            // return true if nothing has been returned yet
-            return true
-        })
-
-        // if any paths are blocked, remove the blocked spots from possible moves
-        if (blockedSpots.length > 0) {
-            availableSpots = chosenPiece.removeBlockedPaths(blockedSpots, availableSpots)
-        }
-
-        return availableSpots
-    }
-
     const squareClick = (event) => {
         // get location of square clicked
         const locationLetter = event.target.parentElement.getAttribute('data-letter')
@@ -251,7 +158,7 @@ export default function GameBoard() {
             if (locationLetter !== currentlySelectedPiece.letter || locationNumber !== currentlySelectedPiece.number) {
                 // update currently selected square in state
                 setCurrentlySelectedPiece({ letter: locationLetter, number: locationNumber })
-                const openSquares = getPotentialMoves({ letter: locationLetter, number: locationNumber })
+                const openSquares = getPotentialMoves({ letter: locationLetter, number: locationNumber }, pieces, getPieceReference)
 
                 // set array of available spots in state
                 setSelectedPieceOpenSpots(openSquares)
@@ -271,22 +178,9 @@ export default function GameBoard() {
         }
     }
 
-    // create each square of board and push it to an array
-    const boardSquares = []
-
-    let isDarkSquare = true
-    for (let i = 8; i > 0; i--) {
-        letters.forEach(letter => {
-            boardSquares.push(<div className={isDarkSquare ? 'board-square square-light' : 'board-square square-dark'} data-letter={letter} data-number={i} data-location={letter + i}>
-                <div className='square-available-circle'></div>
-                <div className='square-clickable' onClick={squareClick}></div>
-            </div>)
-            // only change isDarkSquare boolean if not on last letter
-            if (letter !== 'h') {
-                isDarkSquare = !isDarkSquare
-            }
-        })
-    }
+    // array of squares for board if player is team white, will be mapped over to render to page
+    const boardSquares = createWhiteTeamBoard(squareClick)
+    // const boardSquares = createBlackTeamBoard(squareClick)
 
     return (
         <div className='board'>

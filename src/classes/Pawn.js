@@ -22,8 +22,6 @@ class Pawn extends Piece {
             }
             // if blocked spot is above current, block all spots above it including it
             if (spot.number > this.currentLocation.number) {
-                console.log('i should show up')
-                console.log(availableSpots)
                 availableSpots = availableSpots.filter(openSpot => openSpot.number >= spot.number && openSpot.letter !== this.currentLocation.letter)
             } else {
                 // if blocked spot is below current, block all spots beneath it including it
