@@ -53,6 +53,7 @@ function createNewBoardPieces() {
 }
 
 function createWhiteTeamBoard(squareClickFunction) {
+    console.log('creating board')
     // create each square of board and push it to an array
     const boardSquares = []
 
@@ -79,9 +80,9 @@ function createBlackTeamBoard(squareClickFunction) {
     return createWhiteTeamBoard(squareClickFunction).reverse()
 }
 
-function getPotentialMoves(pieceLocation, pieces, getPieceReferenceFunc) {
+function getPotentialMoves(chosenPiece, pieces, getPieceReferenceFunc) {
     // find which piece is at the given location
-    const chosenPiece = getPieceReferenceFunc(pieceLocation)
+    // const chosenPiece = getPieceReferenceFunc(pieceLocation)
 
     // get possible locations of piece
     let possibleLocations = chosenPiece.getPossibleMoves()
@@ -105,7 +106,6 @@ function getPotentialMoves(pieceLocation, pieces, getPieceReferenceFunc) {
                 const letterIndex = letters.indexOf(chosenPiece.currentLocation.letter)
                 const upAndLeftSquareLetter = letters[letterIndex - 1]
                 const upAndRightSquareLetter = letters[letterIndex + 1]
-                console.log(upAndLeftSquareLetter)
                 return (letter === upAndLeftSquareLetter || letter === upAndRightSquareLetter) && number === chosenPiece.currentLocation.number + 1
             })
             diagonalPieces.forEach(piece => possibleLocations.push(piece.currentLocation))
