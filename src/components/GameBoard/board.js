@@ -5,6 +5,7 @@ import Knight from '../../classes/Knight'
 import Rook from '../../classes/Rook'
 import Bishop from '../../classes/Bishop'
 import Queen from '../../classes/Queen'
+import King from '../../classes/King'
 
 const letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
 
@@ -49,7 +50,12 @@ function createNewBoardPieces() {
         new Queen({ letter: 'd', number: 8 }, 'black')
     ]
 
-    return [...queens, ...bishops, ...rooks, ...knights, ...pawns]
+    const kings = [
+        new King({ letter: 'e', number: 1 }, 'white'),
+        new King({ letter: 'e', number: 8 }, 'black')
+    ]
+
+    return [...queens, ...bishops, ...rooks, ...knights, ...pawns, ...kings]
 }
 
 function createWhiteTeamBoard(squareClickFunction) {
