@@ -94,7 +94,7 @@ export default function GameRoom() {
     return (
         <div>
             <h1>hi</h1>
-            <GameBoard team={team} socket={socket} username={username} teamUp={teamUp} />
+            <GameBoard team={team} socket={socket} username={username} teamUp={teamUp} setTeamUp={setTeamUp} />
             <Modal
                 show={show}
                 onHide={handleClose}
