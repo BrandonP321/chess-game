@@ -18,7 +18,7 @@ const pieceIcons = {
 const letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
 
 export default function GameBoard(props) {
-    const { team, socket, username } = props
+    const { team, socket, username, teamUp } = props
 
     // indicates whether a piece is about to be removed by a function
     const [doRemovePiece, setDoRemovePiece] = useState(false)
@@ -249,6 +249,11 @@ export default function GameBoard(props) {
     const createClickEventListener = () => {
         document.querySelectorAll('.square-clickable').forEach(square => {
             square.addEventListener('click', event => {
+                console.log(teamUp, team)
+                // if the team that is up is not the user's team, don't let anything happen on click
+                if (teamUp.current !== team) {
+                    return
+                }
                 const clickedLocationLetter = event.target.parentElement.getAttribute('data-letter')
                 const clickedLocationNumber = parseInt(event.target.parentElement.getAttribute('data-number'))
                 // get the piece at the given square, if no piece will be undefined

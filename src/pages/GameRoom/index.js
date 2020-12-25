@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useParams } from 'react-router-dom'
 import { Modal, Button } from 'react-bootstrap'
 import socketIOClient from 'socket.io-client'
@@ -17,6 +17,11 @@ export default function GameRoom() {
     const [username, setUsername] = useState('')
     
     const [team, setTeam] = useState()
+
+    const teamUp = useRef('none')
+    const setTeamUp = data => {
+        teamUp.current = data
+    }
     
     const [socket, setSocket] = useState()
     
@@ -51,6 +56,15 @@ export default function GameRoom() {
                 }
             })
 
+            socket.on('notEnoughPlayersToStart', () => {
+                
+            })
+
+            socket.on('startGame', team => {
+                console.log('game started')
+                setTeamUp(team)
+            })
+
             socket.on('opposingUserMove', data => {
                 console.log(data)
             })
@@ -79,7 +93,7 @@ export default function GameRoom() {
     return (
         <div>
             <h1>hi</h1>
-            <GameBoard team={team} socket={socket} username={username} />
+            <GameBoard team={team} socket={socket} username={username} teamUp={teamUp} />
             <Modal
                 show={show}
                 onHide={handleClose}
@@ -96,6 +110,9 @@ export default function GameRoom() {
                     <Button variant="primary" onClick={attemptUsernameCreate}>Let's Go</Button>
                 </Modal.Footer>
             </Modal>
+            <button onClick={() => {
+                socket.emit('beginGame')
+            }}>Start Game</button>
         </div>
     )
 
