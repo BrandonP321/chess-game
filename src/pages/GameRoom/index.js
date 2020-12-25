@@ -62,7 +62,7 @@ export default function GameRoom() {
             })
 
             socket.on('startGame', team => {
-                console.log('game started')
+                console.log('game started ', team)
                 setTeamUp(team)
             })
 

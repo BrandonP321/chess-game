@@ -80,12 +80,15 @@ export default function GameBoard(props) {
     useEffect(() => {
         if (socket) {
             socket.on('opponentMove', move => {
-                console.log(move)
+                console.log('opponent has moved')
                 forceMove(move.startLocation, move.endLocation)
                 // now update which team is able to move a piece
-                if (teamUp === 'white') {
+                console.log('team should now change from ' + teamUp + ' to ...')
+                if (teamUp.current === 'white') {
+                    console.log('black')
                     setTeamUp('black')
-                } else if (teamUp === 'black') {
+                } else if (teamUp.current === 'black') {
+                    console.log('white')
                     setTeamUp('white')
                 }
             })
@@ -154,11 +157,13 @@ export default function GameBoard(props) {
         } else {
             // send message to server that a piece was just moved
             socket.emit('userMovedPiece', { startLocation: selectedPiece.currentLocation, endLocation: newLocation })
-            
+            console.log('team is currently ' + teamUp.current + ', it should now change to..')
             // update which team is up
-            if (teamUp === 'black') {
+            if (teamUp.current === 'black') {
                 setTeamUp('white')
-            } else if (teamUp === 'white') {
+                console.log('white')
+            } else if (teamUp.current === 'white') {
+                console.log('black')
                 setTeamUp('black')
             }
 
@@ -262,7 +267,6 @@ export default function GameBoard(props) {
     const createClickEventListener = () => {
         document.querySelectorAll('.square-clickable').forEach(square => {
             square.addEventListener('click', event => {
-                console.log(teamUp, team)
                 // if the team that is up is not the user's team, don't let anything happen on click
                 if (teamUp.current !== team) {
                     return
@@ -313,7 +317,6 @@ export default function GameBoard(props) {
                 }
 
                 else {
-                    alert("This message should not be showing up, if it is, please take a picture of your board right now and let me know what you did when this popped up")
                 }
             })
         })
