@@ -5,7 +5,8 @@ import socketIOClient from 'socket.io-client'
 import GameBoard from '../../components/GameBoard'
 import './index.css'
 
-const ENDPOINT = 'http://localhost:8000/game'
+// const ENDPOINT = 'http://localhost:8000/game'
+const ENDPOINT = 'https://chess-123-server.herokuapp.com/game'
 
 
 export default function GameRoom() {
