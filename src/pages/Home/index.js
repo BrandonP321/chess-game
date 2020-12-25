@@ -1,7 +1,8 @@
 import React, { useEffect, useState} from 'react'
 import socketIOClient from 'socket.io-client'
 
-const ENDPOINT = 'http://localhost:8000'
+// const ENDPOINT = 'http://localhost:8000'
+const ENDPOINT = 'https://chess-123-server.herokuapp.com'
 
 export default function Home() {
     
