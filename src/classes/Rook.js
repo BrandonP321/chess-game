@@ -1,6 +1,7 @@
-const Piece = require('./Piece')
+// const Piece = require('./Piece')
+import Piece from './Piece'
 
-class Rook extends Piece {
+export default class Rook extends Piece {
     constructor(startLocation, color) {
         super(startLocation, color)
         this.pieceType = 'rook'
@@ -48,7 +49,7 @@ class Rook extends Piece {
     }
 }
 
-module.exports = Rook;
+// module.exports = Rook;
 
 // let rook = new Rook({ letter: 'a', number: 1}, 'white')
 

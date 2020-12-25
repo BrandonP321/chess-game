@@ -1,6 +1,7 @@
-const Piece = require('./Piece')
+// const Piece = require('./Piece')
+import Piece from './Piece'
 
-class Bishop extends Piece {
+export default class Bishop extends Piece {
     constructor(startLocation, color) {
         super(startLocation, color)
         this.pieceType = 'bishop'
@@ -48,8 +49,6 @@ class Bishop extends Piece {
         return availableSpots
     }
 }
-
-module.exports = Bishop;
 
 // let bishop = new Bishop({ letter: 'h', number: 8 }, 'white')
 

@@ -1,4 +1,4 @@
-class Piece {
+export default class Piece {
     constructor(startLocation, color) {
         this.startLocation = startLocation;
         this.color = color;
@@ -35,5 +35,3 @@ class Piece {
         this.currentLocation = newLocation
     }
 }
-
-module.exports = Piece

@@ -1,6 +1,7 @@
-const Piece = require('./Piece')
+// const Piece = require('./Piece')
+import Piece from './Piece'
 
-class Pawn extends Piece {
+export default class Pawn extends Piece {
     constructor(startLocation, color) {
         super(startLocation, color)
         this.pieceType = 'pawn'
@@ -32,5 +33,3 @@ class Pawn extends Piece {
         return availableSpots
     }
 }
-
-module.exports = Pawn;

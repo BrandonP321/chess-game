@@ -1,6 +1,7 @@
-const Piece = require('./Piece')
+// const Piece = require('./Piece')
+import Piece from './Piece'
 
-class Knight extends Piece {
+export default class Knight extends Piece {
     constructor(startLocation, color) {
         super(startLocation, color);
         this.pieceType = 'knight'
@@ -40,8 +41,6 @@ class Knight extends Piece {
         ]
     }
 }
-
-module.exports = Knight
 
 // let knight = new Knight({ letter: 'b', number: 1}, 'black')
 

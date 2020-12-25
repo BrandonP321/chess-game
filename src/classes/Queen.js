@@ -1,6 +1,7 @@
-const Piece = require('./Piece')
+// const Piece = require('./Piece')
+import Piece from './Piece'
 
-class Queen extends Piece {
+export default class Queen extends Piece {
     constructor(startLocation, color) {
         super(startLocation, color)
         this.pieceType = 'queen'
@@ -88,7 +89,7 @@ class Queen extends Piece {
     }
 }
 
-module.exports = Queen;
+// module.exports = Queen;
 
 // let queen = new Queen({ letter: 'd', number: 1 }, 'white')
 
