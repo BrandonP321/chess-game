@@ -5,77 +5,76 @@ import socketIOClient from 'socket.io-client'
 import GameBoard from '../../components/GameBoard'
 import './index.css'
 
-// const ENDPOINT = 'http://localhost:8000/game'
-const ENDPOINT = 'https://chess-123-server.herokuapp.com/game'
+const ENDPOINT = 'http://localhost:8000/game'
+// const ENDPOINT = 'https://chess-123-server.herokuapp.com/game'
 
 
 export default function GameRoom() {
     const { room } = useParams();
-    
+
     // show controls the state of the modal
     const [show, setShow] = useState(true)
-    
+
     const [username, setUsername] = useState('')
-    
+
     const [team, setTeam] = useState()
 
     const teamUp = useRef('none')
     const setTeamUp = data => {
         teamUp.current = data
     }
-    
-    const [socket, setSocket] = useState()
-    
+
+    const [isSocketConnected, setIsSocketConnected] = useState(false)
+    const socket = useRef()
+    const setSocket = data => {
+        socket.current = data
+
+        // update socket state, this tells GameBoard.js that we are connected to the 
+        //socket.io server and it can create socket.io listerners on that file
+        setIsSocketConnected(true)
+
+
+        socket.current.on('connect', data => {
+            console.log('connected to game name space')
+            // make request to join the current room on the server
+            socket.current.emit('joinRoom', room)
+        })
+
+        socket.current.on('usernameCreated', color => {
+            console.log('username good, color: ' + color)
+            // color will tell whether you are white, black, or a watcher
+            // re-render board squares to the respective team color
+            if (color === 'white') {
+                setTeam('white')
+                setShow(!show)
+            } else if (color === 'black') {
+                setTeam('black')
+                setShow(!show)
+            } else {
+                setTeam('watcher')
+                setShow(!show)
+            }
+        })
+
+        socket.current.on('notEnoughPlayersToStart', () => {
+
+        })
+
+        socket.current.on('startGame', team => {
+            console.log('game started ', team)
+            setTeamUp(team)
+        })
+
+        // send message to server before user leaves page
+        window.onbeforeunload = () => {
+            socket.current.emit('userLeaving')
+        }
+    }
+
     useEffect(() => {
         // connect to server main socket
         setSocket(socketIOClient(ENDPOINT))
-
     }, [])
-
-    useEffect(() => {
-        if (socket) {
-            // when user connects 
-            socket.on('connect', data => {
-                console.log('connected to game name space')
-                // make request to join the current room on the server
-                socket.emit('joinRoom', room)
-            })
-
-            socket.on('usernameCreated', color => {
-                console.log('username good, color: ' + color)
-                // color will tell whether you are white, black, or a watcher
-                // re-render board squares to the respective team color
-                if (color === 'white') {
-                    setTeam('white')
-                    setShow(!show)
-                } else if (color === 'black') {
-                    setTeam('black')
-                    setShow(!show)
-                } else {
-                    setTeam('watcher')
-                    setShow(!show)
-                }
-            })
-
-            socket.on('notEnoughPlayersToStart', () => {
-                
-            })
-
-            socket.on('startGame', team => {
-                console.log('game started ', team)
-                setTeamUp(team)
-            })
-
-            socket.on('opposingUserMove', data => {
-                console.log(data)
-            })
-
-            // send message to server before user leaves page
-            window.onbeforeunload = () => {
-                socket.emit('userLeaving')
-            }
-        }
-    }, [socket])
 
     // handles closing of the modal to create a username
     const handleClose = () => {
@@ -88,13 +87,13 @@ export default function GameRoom() {
     }
 
     const attemptUsernameCreate = () => {
-        socket.emit('createUsername', username)
+        socket.current.emit('createUsername', username)
     }
 
     return (
         <div>
             <h1>hi</h1>
-            <GameBoard team={team} socket={socket} username={username} teamUp={teamUp} setTeamUp={setTeamUp} />
+            <GameBoard team={team} socket={socket} username={username} teamUp={teamUp} setTeamUp={setTeamUp} isSocketConnected={isSocketConnected} />
             <Modal
                 show={show}
                 onHide={handleClose}
@@ -112,7 +111,7 @@ export default function GameRoom() {
                 </Modal.Footer>
             </Modal>
             <button onClick={() => {
-                socket.emit('beginGame')
+                socket.current.emit('beginGame')
             }}>Start Game</button>
         </div>
     )

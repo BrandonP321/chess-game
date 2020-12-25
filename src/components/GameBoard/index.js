@@ -18,7 +18,7 @@ const pieceIcons = {
 const letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
 
 export default function GameBoard(props) {
-    const { team, socket, username, teamUp, setTeamUp } = props
+    const { team, socket, isSocketConnected, username, teamUp, setTeamUp } = props
 
     // indicates whether a piece is about to be removed by a function
     const [doRemovePiece, setDoRemovePiece] = useState(false)
@@ -78,8 +78,8 @@ export default function GameBoard(props) {
     }, [])
 
     useEffect(() => {
-        if (socket) {
-            socket.on('opponentMove', move => {
+        if (socket.current) {
+            socket.current.on('opponentMove', move => {
                 console.log('opponent has moved')
                 forceMove(move.startLocation, move.endLocation)
                 // now update which team is able to move a piece
@@ -93,7 +93,7 @@ export default function GameBoard(props) {
                 }
             })
         }
-    }, [socket])
+    }, [isSocketConnected])
 
     // render board when the team is changed
     useEffect(() => {
@@ -156,7 +156,7 @@ export default function GameBoard(props) {
             return false
         } else {
             // send message to server that a piece was just moved
-            socket.emit('userMovedPiece', { startLocation: selectedPiece.currentLocation, endLocation: newLocation })
+            socket.current.emit('userMovedPiece', { startLocation: selectedPiece.currentLocation, endLocation: newLocation })
             console.log('team is currently ' + teamUp.current + ', it should now change to..')
             // update which team is up
             if (teamUp.current === 'black') {
