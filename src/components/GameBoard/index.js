@@ -18,7 +18,7 @@ const pieceIcons = {
 const letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
 
 export default function GameBoard(props) {
-    const { team, socket, isSocketConnected, username, teamUp, setTeamUp } = props
+    const { team, socket, isSocketConnected, username, teamUp, setTeamUp, isGameActive } = props
 
     // indicates whether a piece is about to be removed by a function
     const [doRemovePiece, setDoRemovePiece] = useState(false)
@@ -90,11 +90,10 @@ export default function GameBoard(props) {
 
             socket.current.on('roomJoined', room => {
                 // if room.pieces has more than 0 items, set the state to that
-                console.log('room joined')
                 if (room.pieces.length > 0) {
-                    console.log('able to update pieces to current')
-                    console.log(room.pieces)
+                    // because each piece is now just an object in server, create array of pieces as instances of their respective piece class
                     const piecesWithInstances = createPiecesInstancesArray(room.pieces)
+                    // set the new array of pieces to the state
                     setPieces(piecesWithInstances)
                 }
             })
@@ -271,15 +270,16 @@ export default function GameBoard(props) {
         // send message to server that pieces array has changed since this function gets called when a piece gets moved
         if (isSocketConnected) {
             console.log('updating pieces on server')
-            socket.current.emit('piecesUpdate', pieces.current)
+            socket.current.emit('piecesUpdate', { pieces: pieces.current, teamUp: teamUp.current })
         }
     }
 
     const createClickEventListener = () => {
         document.querySelectorAll('.square-clickable').forEach(square => {
             square.addEventListener('click', event => {
-                // if the team that is up is not the user's team, don't let anything happen on click
-                if (teamUp.current !== team) {
+                console.log(teamUp.current, isGameActive)
+                // if the team that is up is not the user's team or game is not active, don't let anything happen on click
+                if (teamUp.current !== team || !isGameActive.current) {
                     return
                 }
                 const clickedLocationLetter = event.target.parentElement.getAttribute('data-letter')

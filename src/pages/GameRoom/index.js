@@ -19,6 +19,10 @@ export default function GameRoom() {
     const [watchers, setWatchers] = useState([])
 
     const [username, setUsername] = useState('')
+    const usernameRef = useRef('')
+    const setUsernameRef = data => {
+        usernameRef.current = data
+    }
 
     const [whiteUsername, setWhiteUsername] = useState('')
     const [blackUsername, setBlackUsername] = useState('')
@@ -26,7 +30,17 @@ export default function GameRoom() {
     const [whitePiecesTaken, setWhitePiecesTaken] = useState([])
     const [blackPiecesTaken, setBlackPiecesTaken] = useState(['rook', 'rook', 'pawn', 'pawn', 'knight', 'pawn', 'bishop', 'queen', 'rook', 'rook', 'pawn', 'pawn', 'knight', 'pawn', 'bishop', 'queen'])
 
+    const teamRef = useRef()
+    const setTeamRef = data => {
+        teamRef.current = data
+    }
+
     const [team, setTeam] = useState()
+
+    const isGameActive = useRef(false)
+    const setIsGameActive = data => {
+        isGameActive.current = data
+    }
 
     const teamUp = useRef('none')
     const setTeamUp = data => {
@@ -65,13 +79,17 @@ export default function GameRoom() {
             // re-render board squares to the respective team color
             setShow(!show)
             setUsername(newUser.username)
+            setUsernameRef(newUser.username)
             if (newUser.color === 'white') {
                 setTeam('white')
+                setTeamRef('white')
                 setWhiteUsername(newUser.username)
             } else if (newUser.color === 'black') {
                 setTeam('black')
+                setTeamRef('black')
                 setBlackUsername(newUser.username)
             } else {
+                setTeamRef('watcher')
                 setTeam('watcher')
             }
         })
@@ -82,12 +100,35 @@ export default function GameRoom() {
 
         socket.current.on('startGame', team => {
             console.log('game started ', team)
-            setTeamUp(team)
+            // if no team is up, game has not yet started and can be set to white
+            if (teamUp.current === 'none'){
+                setTeamUp(team)
+            }
+            setIsGameActive(true)
+        })
+
+        socket.current.on('userLeft', user => {
+            const { team, username } = user
+            console.log('user left', user)
+
+            if (team === 'white') {
+                // if a white player left, remove their username and stop the game
+                setWhiteUsername('')
+                setIsGameActive(false)
+            } else if (team === 'black') {
+                // if a black player left, remove their username and stop the game
+                console.log()
+                setBlackUsername('')
+                setIsGameActive(false)
+            } else {
+                // otherwise a spectator must have left, remove their name from the board
+                setWatchers(watchers.filter(watcher => watcher !== username))
+            }
         })
 
         // send message to server before user leaves page
         window.onbeforeunload = () => {
-            socket.current.emit('userLeaving')
+            socket.current.emit('userLeaving', { username: usernameRef.current, team: teamRef.current})
         }
     }
 
@@ -116,7 +157,15 @@ export default function GameRoom() {
         <>
             <div className='content-wrapper'>
                 <div className='game-main-content'>
-                    <GameBoard team={team} socket={socket} username={username} teamUp={teamUp} setTeamUp={setTeamUp} isSocketConnected={isSocketConnected} />
+                    <GameBoard 
+                        team={team} 
+                        socket={socket} 
+                        username={username} 
+                        teamUp={teamUp} 
+                        setTeamUp={setTeamUp} 
+                        isSocketConnected={isSocketConnected}
+                        isGameActive={isGameActive}
+                    />
                     <button onClick={() => {
                         socket.current.emit('beginGame')
                     }}>Start Game</button>
