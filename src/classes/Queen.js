@@ -2,8 +2,8 @@
 import Piece from './Piece'
 
 export default class Queen extends Piece {
-    constructor(startLocation, color) {
-        super(startLocation, color)
+    constructor(startLocation, color, currentLocation) {
+        super(startLocation, color, currentLocation)
         this.pieceType = 'queen'
         this.moveChanges = []
         // create moves queen could make
@@ -29,11 +29,6 @@ export default class Queen extends Piece {
 
     removeBlockedPaths(blockedSpotsArr, availableSpotsArr) {
         let availableSpots = availableSpotsArr
-        console.log(availableSpots)
-        console.log()
-        console.log(blockedSpotsArr)
-        console.log(this.currentLocation)
-        console.log('begin loop\n')
         blockedSpotsArr.forEach(spot => {
             console.log(availableSpots)
             console.log(spot)

@@ -4,7 +4,7 @@ import board from './board'
 import { useParams } from 'react-router-dom'
 import { render } from '@testing-library/react'
 // destructure createBoard file for functions to create & manipulate board
-const { createNewBoardPieces, createWhiteTeamBoard, createBlackTeamBoard, getPotentialMoves } = board
+const { createNewBoardPieces, createWhiteTeamBoard, createPiecesInstancesArray, getPotentialMoves } = board
 
 const pieceIcons = {
     rook: '<i class="fas fa-chess-rook piece-icon"></i>',
@@ -35,10 +35,7 @@ export default function GameBoard(props) {
     const pieces = useRef([])
     const setPieces = data => {
         pieces.current = data
-        console.log('should render pieces')
-        console.log(boardSquaresRef.current)
         if (pieces.current.length > 0 && boardSquaresRef.current.length > 0) {
-            console.log('rendering pieces from setting pieces array')
             renderPieces()
         }
     }
@@ -72,9 +69,10 @@ export default function GameBoard(props) {
 
     // on component load, ...
     useEffect(() => {
-        console.log(1)
-        // generate all board pieces and add them to the state
-        setPieces(createNewBoardPieces())
+        // if no pieces are set in the state, generate all board pieces and add them to the state
+        if (pieces.current.length < 1) {
+            setPieces(createNewBoardPieces())
+        }
     }, [])
 
     useEffect(() => {
@@ -83,13 +81,21 @@ export default function GameBoard(props) {
                 console.log('opponent has moved')
                 forceMove(move.startLocation, move.endLocation)
                 // now update which team is able to move a piece
-                console.log('team should now change from ' + teamUp + ' to ...')
                 if (teamUp.current === 'white') {
-                    console.log('black')
                     setTeamUp('black')
                 } else if (teamUp.current === 'black') {
-                    console.log('white')
                     setTeamUp('white')
+                }
+            })
+
+            socket.current.on('roomJoined', room => {
+                // if room.pieces has more than 0 items, set the state to that
+                console.log('room joined')
+                if (room.pieces.length > 0) {
+                    console.log('able to update pieces to current')
+                    console.log(room.pieces)
+                    const piecesWithInstances = createPiecesInstancesArray(room.pieces)
+                    setPieces(piecesWithInstances)
                 }
             })
         }
@@ -157,13 +163,10 @@ export default function GameBoard(props) {
         } else {
             // send message to server that a piece was just moved
             socket.current.emit('userMovedPiece', { startLocation: selectedPiece.currentLocation, endLocation: newLocation })
-            console.log('team is currently ' + teamUp.current + ', it should now change to..')
             // update which team is up
             if (teamUp.current === 'black') {
                 setTeamUp('white')
-                console.log('white')
             } else if (teamUp.current === 'white') {
-                console.log('black')
                 setTeamUp('black')
             }
 
@@ -187,7 +190,9 @@ export default function GameBoard(props) {
 
     // force a piece to move if server sends opponent's move
     const forceMove = (startLocation, newLocation) => {
+        console.log('start location: ', startLocation)
         const selectedPiece = getPieceReference(startLocation)
+        console.log(pieces.current)
         const pieceAtNewSpot = getPieceReference(newLocation)
 
         // if there is another piece on that square, remove it from the state
@@ -259,9 +264,15 @@ export default function GameBoard(props) {
         })
 
         // reset states
-        setCurrentlySelectedPiece({}) // this seems to be causing the issues
+        setCurrentlySelectedPiece({})
         
         setSelectedPieceOpenSpots([])
+
+        // send message to server that pieces array has changed since this function gets called when a piece gets moved
+        if (isSocketConnected) {
+            console.log('updating pieces on server')
+            socket.current.emit('piecesUpdate', pieces.current)
+        }
     }
 
     const createClickEventListener = () => {

@@ -1,8 +1,8 @@
 export default class Piece {
-    constructor(startLocation, color) {
+    constructor(startLocation, color, currentLocation) {
         this.startLocation = startLocation;
         this.color = color;
-        this.currentLocation = startLocation;
+        this.currentLocation = currentLocation ? currentLocation: startLocation
         this.letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
     }
 

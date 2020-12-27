@@ -1,0 +1,31 @@
+.content-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.game-aside-content {
+    position: relative;
+    background-color: salmon;
+    width: 400px;
+}
+
+.game-main-content {
+    background-color: blue;
+    width: calc(100% - 400px);
+}
+
+/* at 1300px move aside containing player info to above board */
+@media screen and (max-width: 1300px) {
+    .content-wrapper {
+        flex-direction: column-reverse;
+    }
+
+    .game-aside-content {
+        width: 100%;
+        height: 500px;
+    }
+
+    .game-main-content {
+        width: 100%;
+    }
+}

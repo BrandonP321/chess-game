@@ -178,9 +178,41 @@ function getPotentialMoves(chosenPiece, pieces, getPieceReferenceFunc) {
     return availableSpots
 }
 
+function createPiecesInstancesArray(piecesArr) {
+    const pieces = []
+    piecesArr.forEach(piece => {
+        const { startLocation, color, currentLocation } = piece
+
+        // based on what the piece is, create an instance of that piece and push it to the new arr
+        switch(piece.pieceType) {
+            case 'bishop':
+                pieces.push(new Bishop(startLocation, color, currentLocation))
+                break;
+            case 'king':
+                pieces.push(new King(startLocation, color, currentLocation))
+                break;
+            case 'knight':
+                pieces.push(new Knight(startLocation, color, currentLocation))
+                break;
+            case 'pawn':
+                pieces.push(new Pawn(startLocation, color, currentLocation))
+                break;
+            case 'queen':
+                pieces.push(new Queen(startLocation, color, currentLocation))
+                break;
+            case 'rook':
+                pieces.push(new Rook(startLocation, color, currentLocation))
+                break;
+        }
+    })
+
+    return pieces
+}
+
 export default {
     createNewBoardPieces: createNewBoardPieces,
     createWhiteTeamBoard: createWhiteTeamBoard,
     createBlackTeamBoard: createBlackTeamBoard,
-    getPotentialMoves: getPotentialMoves
+    getPotentialMoves: getPotentialMoves,
+    createPiecesInstancesArray: createPiecesInstancesArray
 }

@@ -1,0 +1,35 @@
+
+.icon-black {
+    color: black;
+}
+
+.icon-white {
+    color: white;
+}
+
+.taken-piece-icon {
+    color: inherit;
+    font-size: 2rem;
+}
+
+.taken-piece-container {
+    width: 10%;
+    text-align: center;
+}
+
+.taken-pieces-black {
+    color: black;
+}
+
+.taken-pieces-white {
+    color: white;
+}
+
+.taken-pieces-container {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.team-icon {
+    font-size: 4rem;
+}

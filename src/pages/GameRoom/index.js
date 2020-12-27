@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom'
 import { Modal, Button } from 'react-bootstrap'
 import socketIOClient from 'socket.io-client'
 import GameBoard from '../../components/GameBoard'
+import PlayersAside from '../../components/PlayersAside'
 import './index.css'
 
 const ENDPOINT = 'http://localhost:8000/game'
@@ -15,7 +16,15 @@ export default function GameRoom() {
     // show controls the state of the modal
     const [show, setShow] = useState(true)
 
+    const [watchers, setWatchers] = useState([])
+
     const [username, setUsername] = useState('')
+
+    const [whiteUsername, setWhiteUsername] = useState('')
+    const [blackUsername, setBlackUsername] = useState('')
+
+    const [whitePiecesTaken, setWhitePiecesTaken] = useState([])
+    const [blackPiecesTaken, setBlackPiecesTaken] = useState(['rook', 'rook', 'pawn', 'pawn', 'knight', 'pawn', 'bishop', 'queen', 'rook', 'rook', 'pawn', 'pawn', 'knight', 'pawn', 'bishop', 'queen'])
 
     const [team, setTeam] = useState()
 
@@ -40,19 +49,30 @@ export default function GameRoom() {
             socket.current.emit('joinRoom', room)
         })
 
-        socket.current.on('usernameCreated', color => {
-            console.log('username good, color: ' + color)
+        // when the user joins a room, get all current info on that room
+        socket.current.on('roomJoined', room => {
+            console.log(room)
+            // update states and reference hooks to contain current info on room
+            setBlackUsername(room.blackPlayer)
+            setWhiteUsername(room.whitePlayer)
+            setTeamUp(room.teamUp)
+            setWatchers(room.watchers)
+        })
+
+        socket.current.on('usernameCreated', newUser => {
+            console.log('username good, color: ' + newUser.color)
             // color will tell whether you are white, black, or a watcher
             // re-render board squares to the respective team color
-            if (color === 'white') {
+            setShow(!show)
+            setUsername(newUser.username)
+            if (newUser.color === 'white') {
                 setTeam('white')
-                setShow(!show)
-            } else if (color === 'black') {
+                setWhiteUsername(newUser.username)
+            } else if (newUser.color === 'black') {
                 setTeam('black')
-                setShow(!show)
+                setBlackUsername(newUser.username)
             } else {
                 setTeam('watcher')
-                setShow(!show)
             }
         })
 
@@ -88,12 +108,30 @@ export default function GameRoom() {
 
     const attemptUsernameCreate = () => {
         socket.current.emit('createUsername', username)
+
+        // move this code in to a socket.on() once username validation on server
     }
 
     return (
-        <div>
-            <h1>hi</h1>
-            <GameBoard team={team} socket={socket} username={username} teamUp={teamUp} setTeamUp={setTeamUp} isSocketConnected={isSocketConnected} />
+        <>
+            <div className='content-wrapper'>
+                <div className='game-main-content'>
+                    <GameBoard team={team} socket={socket} username={username} teamUp={teamUp} setTeamUp={setTeamUp} isSocketConnected={isSocketConnected} />
+                    <button onClick={() => {
+                        socket.current.emit('beginGame')
+                    }}>Start Game</button>
+                </div>
+                <div className='game-aside-content'>
+                    <PlayersAside 
+                        team={team} 
+                        whitePiecesTaken={whitePiecesTaken} 
+                        blackPiecesTaken={blackPiecesTaken} 
+                        whiteUsername={whiteUsername}
+                        blackUsername={blackUsername}
+                        username={username}
+                    />
+                </div>
+            </div>
             <Modal
                 show={show}
                 onHide={handleClose}
@@ -110,10 +148,7 @@ export default function GameRoom() {
                     <Button variant="primary" onClick={attemptUsernameCreate}>Let's Go</Button>
                 </Modal.Footer>
             </Modal>
-            <button onClick={() => {
-                socket.current.emit('beginGame')
-            }}>Start Game</button>
-        </div>
+        </>
     )
 
 }
