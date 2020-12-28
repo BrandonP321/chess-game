@@ -4,7 +4,11 @@ import board from './board'
 import { useParams } from 'react-router-dom'
 import { render } from '@testing-library/react'
 // destructure createBoard file for functions to create & manipulate board
-const { createNewBoardPieces, createWhiteTeamBoard, createPiecesInstancesArray, getPotentialMoves } = board
+const { 
+    createNewBoardPieces, 
+    createPiecesInstancesArray, 
+    getPotentialMoves 
+} = board
 
 const pieceIcons = {
     rook: '<i class="fas fa-chess-rook piece-icon"></i>',
@@ -18,10 +22,19 @@ const pieceIcons = {
 const letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
 
 export default function GameBoard(props) {
-    const { team, socket, isSocketConnected, username, teamUp, setTeamUp, isGameActive } = props
-
-    // indicates whether a piece is about to be removed by a function
-    const [doRemovePiece, setDoRemovePiece] = useState(false)
+    const { 
+        teamRef,
+        teamState, 
+        socket, 
+        isSocketConnected, 
+        usernameRef,
+        usernameState,
+        teamUpRef,
+        teamUpState, 
+        setTeamUp, 
+        isGameActiveRef,
+        isGameActiveState
+    } = props
 
     const [boardSquaresState, setBoardSquaresState] = useState([])
 
@@ -81,9 +94,9 @@ export default function GameBoard(props) {
                 console.log('opponent has moved')
                 forceMove(move.startLocation, move.endLocation)
                 // now update which team is able to move a piece
-                if (teamUp.current === 'white') {
+                if (teamUpRef.current === 'white') {
                     setTeamUp('black')
-                } else if (teamUp.current === 'black') {
+                } else if (teamUpRef.current === 'black') {
                     setTeamUp('white')
                 }
             })
@@ -102,12 +115,13 @@ export default function GameBoard(props) {
 
     // render board when the team is changed
     useEffect(() => {
-        if (team === 'white' || team === 'watcher') {
+        console.log('should create board for team ', teamState)
+        if (teamState === 'white' || teamState === 'watcher') {
             createTeamBoard('white')
-        } else if (team === 'black') {
+        } else if (teamState === 'black') {
             createTeamBoard('black');
         }
-    }, [team])
+    }, [teamState])
 
     useEffect(() => {
         if (boardSquaresState.length > 0 && pieces.current.length > 0) {
@@ -163,16 +177,14 @@ export default function GameBoard(props) {
             // send message to server that a piece was just moved
             socket.current.emit('userMovedPiece', { startLocation: selectedPiece.currentLocation, endLocation: newLocation })
             // update which team is up
-            if (teamUp.current === 'black') {
+            if (teamUpRef.current === 'black') {
                 setTeamUp('white')
-            } else if (teamUp.current === 'white') {
+            } else if (teamUpRef.current === 'white') {
                 setTeamUp('black')
             }
 
             // if there is another piece on that square, remove it from the state
             if (pieceAtNewSpot) {
-                // signify that a piece is being moved
-                setDoRemovePiece(true)
                 // remove piece at the new location
                 const newPiecesArr = removePiece(newLocation)
                 // update the location of the moved piece
@@ -196,8 +208,6 @@ export default function GameBoard(props) {
 
         // if there is another piece on that square, remove it from the state
         if (pieceAtNewSpot) {
-            // signify that a piece is being moved
-            setDoRemovePiece(true)
             // remove piece at the new location
             const newPiecesArr = removePiece(newLocation)
             // update the location of the moved piece
@@ -270,16 +280,16 @@ export default function GameBoard(props) {
         // send message to server that pieces array has changed since this function gets called when a piece gets moved
         if (isSocketConnected) {
             console.log('updating pieces on server')
-            socket.current.emit('piecesUpdate', { pieces: pieces.current, teamUp: teamUp.current })
+            socket.current.emit('piecesUpdate', { pieces: pieces.current, teamUp: teamUpRef.current })
         }
     }
 
     const createClickEventListener = () => {
         document.querySelectorAll('.square-clickable').forEach(square => {
             square.addEventListener('click', event => {
-                console.log(teamUp.current, isGameActive)
                 // if the team that is up is not the user's team or game is not active, don't let anything happen on click
-                if (teamUp.current !== team || !isGameActive.current) {
+                if (teamUpRef.current !== teamRef.current || !isGameActiveRef.current) {
+                    console.log('you are not up')
                     return
                 }
                 const clickedLocationLetter = event.target.parentElement.getAttribute('data-letter')
@@ -316,7 +326,7 @@ export default function GameBoard(props) {
                     }
 
                     // if no other piece is currently selected, select piece and show available spots if team is same as user's team
-                    else if (!selectedPiece && pieceAtClickedSquare.color === team) {
+                    else if (!selectedPiece && pieceAtClickedSquare.color === teamRef.current) {
                         setCurrentlySelectedPiece({ letter: clickedLocationLetter, number: clickedLocationNumber })
                         setSelectedPieceOpenSpots(getPotentialMoves(pieceAtClickedSquare, pieces.current))
                     }

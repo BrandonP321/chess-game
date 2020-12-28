@@ -11,17 +11,26 @@ const pieceIcons = {
 }
 
 export default function PlayersAside(props) {
-    const { team, whitePiecesTaken, blackPiecesTaken, whiteUsername, blackUsername, username } = props
+    const { 
+        teamRef,
+        teamState, 
+        whitePiecesTakenState, 
+        blackPiecesTakenState, 
+        whiteUsername, 
+        blackUsername, 
+        usernameRef,
+        usernameState 
+    } = props
     
     return (
         <div>
             <div className='player-info-container'>
                 <h3 className='player-username'>
                     <span><i class="fas fa-chess-king team-icon icon-white"></i> </span>
-                    {!whiteUsername ? 'No Player': whiteUsername === username ? 'You': whiteUsername}
+                    {!whiteUsername ? 'No Player': whiteUsername === usernameState ? 'You': whiteUsername}
                 </h3>
                 <div className='taken-pieces-container taken-pieces-black'>
-                    {blackPiecesTaken.map(piece => {
+                    {blackPiecesTakenState.map(piece => {
                         return (
                             <div className='taken-piece-container'>
                                 {pieceIcons[piece]}
@@ -33,10 +42,10 @@ export default function PlayersAside(props) {
             <div className='player-info-container'>
                 <h3 className='player-username'>
                     <span><i class="fas fa-chess-king team-icon icon-black"></i> </span>
-                    {!blackUsername ? 'No Player': blackUsername === username ? 'You': blackUsername}
+                    {!blackUsername ? 'No Player': blackUsername === usernameState ? 'You': blackUsername}
                 </h3>
                 <div className='taken-pieces-container taken-pieces-white'>
-                    {whitePiecesTaken.map(piece => {
+                    {whitePiecesTakenState.map(piece => {
                         return (
                             <div className='taken-piece-container'>
                                 {pieceIcons[piece]}

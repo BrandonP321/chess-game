@@ -10,52 +10,271 @@ const ENDPOINT = 'http://localhost:8000/game'
 // const ENDPOINT = 'https://chess-123-server.herokuapp.com/game'
 
 
+// export default function GameRoom() {
+//     const { room } = useParams();
+
+//     // show controls the state of the modal
+//     const [show, setShowModal] = useState(true)
+
+//     const [watchers, setWatchers] = useState([])
+
+//     const [username, setUsername] = useState('')
+//     const usernameRef = useRef('')
+//     const setUsernameRef = data => {
+//         usernameRef.current = data
+//     }
+
+//     const [whiteUsername, setWhiteUsername] = useState('')
+//     const [blackUsername, setBlackUsername] = useState('')
+
+//     const [whitePiecesTaken, setWhitePiecesTaken] = useState([])
+//     const [blackPiecesTaken, setBlackPiecesTaken] = useState(['rook', 'rook', 'pawn', 'pawn', 'knight', 'pawn', 'bishop', 'queen', 'rook', 'rook', 'pawn', 'pawn', 'knight', 'pawn', 'bishop', 'queen'])
+
+//     const teamRef = useRef()
+//     const setTeamRef = data => {
+//         teamRef.current = data
+//     }
+
+//     const [team, setTeam] = useState()
+
+//     const isGameActive = useRef(false)
+//     const setIsGameActive = data => {
+//         isGameActive.current = data
+//     }
+
+//     const teamUp = useRef('none')
+//     const setTeamUp = data => {
+//         teamUpRef.current = data
+//     }
+
+//     const [isSocketConnected, setIsSocketConnected] = useState(false)
+//     const socket = useRef()
+//     const setSocket = data => {
+//         socket.current = data
+
+//         // update socket state, this tells GameBoard.js that we are connected to the 
+//         //socket.io server and it can create socket.io listerners on that file
+//         setIsSocketConnected(true)
+
+
+//         socket.current.on('connect', data => {
+//             console.log('connected to game name space')
+//             // make request to join the current room on the server
+//             socket.current.emit('joinRoom', room)
+//         })
+
+//         // when the user joins a room, get all current info on that room
+//         socket.current.on('roomJoined', room => {
+//             console.log(room)
+//             // update states and reference hooks to contain current info on room
+//             setBlackUsername(room.blackPlayer)
+//             setWhiteUsername(room.whitePlayer)
+//             setTeamUp(room.teamUp)
+//             setWatchers(room.watchers)
+//         })
+
+//         socket.current.on('usernameCreated', newUser => {
+//             console.log('username good, color: ' + newUser.color)
+//             // color will tell whether you are white, black, or a watcher
+//             // re-render board squares to the respective team color
+//             setShowModal(!show)
+//             setUsername(newUser.username)
+//             setUsernameRef(newUser.username)
+//             if (newUser.color === 'white') {
+//                 setTeam('white')
+//                 setTeamRef('white')
+//                 setWhiteUsername(newUser.username)
+//             } else if (newUser.color === 'black') {
+//                 setTeam('black')
+//                 setTeamRef('black')
+//                 setBlackUsername(newUser.username)
+//             } else {
+//                 setTeamRef('watcher')
+//                 setTeam('watcher')
+//             }
+//         })
+
+//         socket.current.on('notEnoughPlayersToStart', () => {
+
+//         })
+
+//         socket.current.on('startGame', team => {
+//             console.log('game started ', team)
+//             // if no team is up, game has not yet started and can be set to white
+//             if (teamUpRef.current === 'none'){
+//                 setTeamUp(team)
+//             }
+//             setIsGameActive(true)
+//         })
+
+//         socket.current.on('userLeft', user => {
+//             const { team, username } = user
+//             console.log('user left', user)
+
+//             if (team === 'white') {
+//                 // if a white player left, remove their username and stop the game
+//                 setWhiteUsername('')
+//                 setIsGameActive(false)
+//             } else if (team === 'black') {
+//                 // if a black player left, remove their username and stop the game
+//                 console.log()
+//                 setBlackUsername('')
+//                 setIsGameActive(false)
+//             } else {
+//                 // otherwise a spectator must have left, remove their name from the board
+//                 setWatchers(watchers.filter(watcher => watcher !== username))
+//             }
+//         })
+
+//         // send message to server before user leaves page
+//         window.onbeforeunload = () => {
+//             socket.current.emit('userLeaving', { username: usernameRef.current, team: teamRef.current})
+//         }
+//     }
+
+//     useEffect(() => {
+//         // connect to server main socket
+//         setSocket(socketIOClient(ENDPOINT))
+//     }, [])
+
+//     // handles closing of the modal to create a username
+//     const handleClose = () => {
+//         setShowModal(!show)
+//     }
+
+//     const handleModalInputChange = (event) => {
+//         const value = event.target.value
+//         setUsername(value)
+//     }
+
+//     const attemptUsernameCreate = () => {
+//         socket.current.emit('createUsername', username)
+
+//         // move this code in to a socket.on() once username validation on server
+//     }
+
+//     return (
+//         <>
+//             <div className='content-wrapper'>
+//                 <div className='game-main-content'>
+//                     <GameBoard 
+//                         team={team} 
+//                         socket={socket} 
+//                         username={username} 
+//                         teamUp={teamUp} 
+//                         setTeamUp={setTeamUp} 
+//                         isSocketConnected={isSocketConnected}
+//                         isGameActive={isGameActive}
+//                     />
+//                     <button onClick={() => {
+//                         socket.current.emit('beginGame')
+//                     }}>Start Game</button>
+//                 </div>
+//                 <div className='game-aside-content'>
+//                     <PlayersAside 
+//                         team={team} 
+//                         whitePiecesTaken={whitePiecesTaken} 
+//                         blackPiecesTaken={blackPiecesTaken} 
+//                         whiteUsername={whiteUsername}
+//                         blackUsername={blackUsername}
+//                         username={username}
+//                     />
+//                 </div>
+//             </div>
+//             <Modal
+//                 show={show}
+//                 onHide={handleClose}
+//                 backdrop="static"
+//                 keyboard={false}
+//             >
+//                 <Modal.Header>
+//                     <Modal.Title>Create a Username</Modal.Title>
+//                 </Modal.Header>
+//                 <Modal.Body>
+//                     <input type='text' className='form-control' value={username} placeholder='Username' onChange={handleModalInputChange} />
+//                 </Modal.Body>
+//                 <Modal.Footer>
+//                     <Button variant="primary" onClick={attemptUsernameCreate}>Let's Go</Button>
+//                 </Modal.Footer>
+//             </Modal>
+//         </>
+//     )
+
+// }
+
+
 export default function GameRoom() {
+    // get room id from url
     const { room } = useParams();
 
-    // show controls the state of the modal
-    const [show, setShow] = useState(true)
+    // controls the state of the modal
+    const [showModal, setShowModal] = useState(true)
 
+    // state and ref for people spectating the game
     const [watchers, setWatchers] = useState([])
 
-    const [username, setUsername] = useState('')
+    // state and ref for user's username
+    const [usernameState, setUsernameState] = useState('')
     const usernameRef = useRef('')
-    const setUsernameRef = data => {
+    const setUsername = data => {
         usernameRef.current = data
+        setUsernameState(data)
     }
 
     const [whiteUsername, setWhiteUsername] = useState('')
     const [blackUsername, setBlackUsername] = useState('')
 
-    const [whitePiecesTaken, setWhitePiecesTaken] = useState([])
-    const [blackPiecesTaken, setBlackPiecesTaken] = useState(['rook', 'rook', 'pawn', 'pawn', 'knight', 'pawn', 'bishop', 'queen', 'rook', 'rook', 'pawn', 'pawn', 'knight', 'pawn', 'bishop', 'queen'])
+    // state and ref for white pieces taken by black player
+    const [whitePiecesTakenState, setWhitePiecesTakenState] = useState([])
+    const whitePiecesTakenRef = useRef([])
+    const setWhitePiecesTaken = data => {
+        whitePiecesTakenRef.current = data
+        setWhitePiecesTakenState(data)
+    }
 
+    // state and ref for black pieces taken by white player
+    const [blackPiecesTakenState, setBlackPiecesTakenState] = useState(['rook', 'rook', 'pawn', 'pawn', 'knight', 'pawn', 'bishop', 'queen', 'rook', 'rook', 'pawn', 'pawn', 'knight', 'pawn', 'bishop', 'queen'])
+    const blackPiecesTakenRef = useRef([])
+    const setBlackPiecesTaken = data => {
+        blackPiecesTakenRef.current = data;
+        setBlackPiecesTakenState(data)
+    }
+
+    // state and ref for user's team
+    const [teamState, setTeamState] = useState()
     const teamRef = useRef()
-    const setTeamRef = data => {
-        teamRef.current = data
+    const setTeam = data => {
+        teamRef.current = data;
+        setTeamState(data)
     }
-
-    const [team, setTeam] = useState()
-
-    const isGameActive = useRef(false)
+    
+    // state and ref indicating if game is active
+    const [isGameActiveState, setIsGameActiveState] = useState(false)
+    const isGameActiveRef = useRef(false)
     const setIsGameActive = data => {
-        isGameActive.current = data
+        isGameActiveRef.current = data;
+        setIsGameActiveState(data);
     }
 
-    const teamUp = useRef('none')
+    // state and ref for which team is able to move
+    const [teamUpState, setTeamUpState] = useState('none')
+    const teamUpRef = useRef('none')
     const setTeamUp = data => {
-        teamUp.current = data
+        teamUpRef.current = data
+        setTeamUpState(data)
     }
 
+    // state indicating if site is connected to the socket.io server
     const [isSocketConnected, setIsSocketConnected] = useState(false)
+    // reference to the socket.io connection
     const socket = useRef()
     const setSocket = data => {
         socket.current = data
 
-        // update socket state, this tells GameBoard.js that we are connected to the 
-        //socket.io server and it can create socket.io listerners on that file
+        // when the useRef hook for the socket is set, we know we are now connected to the server
         setIsSocketConnected(true)
 
+        // create socket.io listeners
 
         socket.current.on('connect', data => {
             console.log('connected to game name space')
@@ -65,8 +284,7 @@ export default function GameRoom() {
 
         // when the user joins a room, get all current info on that room
         socket.current.on('roomJoined', room => {
-            console.log(room)
-            // update states and reference hooks to contain current info on room
+            // update state and reference hooks to contain current info on room
             setBlackUsername(room.blackPlayer)
             setWhiteUsername(room.whitePlayer)
             setTeamUp(room.teamUp)
@@ -75,21 +293,18 @@ export default function GameRoom() {
 
         socket.current.on('usernameCreated', newUser => {
             console.log('username good, color: ' + newUser.color)
-            // color will tell whether you are white, black, or a watcher
-            // re-render board squares to the respective team color
-            setShow(!show)
+            // hide the modal
+            setShowModal(!showModal)
+            // update hooks for user's username
             setUsername(newUser.username)
-            setUsernameRef(newUser.username)
+            // assign team and username to hooks based on team color
             if (newUser.color === 'white') {
                 setTeam('white')
-                setTeamRef('white')
                 setWhiteUsername(newUser.username)
             } else if (newUser.color === 'black') {
                 setTeam('black')
-                setTeamRef('black')
                 setBlackUsername(newUser.username)
             } else {
-                setTeamRef('watcher')
                 setTeam('watcher')
             }
         })
@@ -101,7 +316,8 @@ export default function GameRoom() {
         socket.current.on('startGame', team => {
             console.log('game started ', team)
             // if no team is up, game has not yet started and can be set to white
-            if (teamUp.current === 'none'){
+            if (teamUpRef.current === 'none'){
+                console.log('team should be updated')
                 setTeamUp(team)
             }
             setIsGameActive(true)
@@ -110,36 +326,32 @@ export default function GameRoom() {
         socket.current.on('userLeft', user => {
             const { team, username } = user
             console.log('user left', user)
-
+            // remove username of player that left and stop the game
             if (team === 'white') {
-                // if a white player left, remove their username and stop the game
                 setWhiteUsername('')
                 setIsGameActive(false)
             } else if (team === 'black') {
-                // if a black player left, remove their username and stop the game
-                console.log()
                 setBlackUsername('')
                 setIsGameActive(false)
             } else {
-                // otherwise a spectator must have left, remove their name from the board
                 setWatchers(watchers.filter(watcher => watcher !== username))
             }
         })
 
-        // send message to server before user leaves page
+        // tell the server when a player is leaving the page
         window.onbeforeunload = () => {
             socket.current.emit('userLeaving', { username: usernameRef.current, team: teamRef.current})
         }
     }
 
+    // on load, connect to the socket.io server
     useEffect(() => {
-        // connect to server main socket
         setSocket(socketIOClient(ENDPOINT))
     }, [])
 
     // handles closing of the modal to create a username
-    const handleClose = () => {
-        setShow(!show)
+    const handleModalClose = () => {
+        setShowModal(!showModal)
     }
 
     const handleModalInputChange = (event) => {
@@ -148,7 +360,7 @@ export default function GameRoom() {
     }
 
     const attemptUsernameCreate = () => {
-        socket.current.emit('createUsername', username)
+        socket.current.emit('createUsername', usernameRef.current)
 
         // move this code in to a socket.on() once username validation on server
     }
@@ -158,13 +370,17 @@ export default function GameRoom() {
             <div className='content-wrapper'>
                 <div className='game-main-content'>
                     <GameBoard 
-                        team={team} 
+                        teamRef={teamRef}
+                        teamState={teamState} 
                         socket={socket} 
-                        username={username} 
-                        teamUp={teamUp} 
+                        usernameState={usernameState} 
+                        usernameRef={usernameRef} 
+                        teamUpRef={teamUpRef}
+                        teamUpState={teamUpState} 
                         setTeamUp={setTeamUp} 
                         isSocketConnected={isSocketConnected}
-                        isGameActive={isGameActive}
+                        isGameActiveRef={isGameActiveRef}
+                        isGameActiveState={isGameActiveState}
                     />
                     <button onClick={() => {
                         socket.current.emit('beginGame')
@@ -172,18 +388,22 @@ export default function GameRoom() {
                 </div>
                 <div className='game-aside-content'>
                     <PlayersAside 
-                        team={team} 
-                        whitePiecesTaken={whitePiecesTaken} 
-                        blackPiecesTaken={blackPiecesTaken} 
+                        teamRef={teamRef} 
+                        teamState={teamState}
+                        whitePiecesTakenRef={whitePiecesTakenRef} 
+                        whitePiecesTakenState={whitePiecesTakenState} 
+                        blackPiecesTakenRef={blackPiecesTakenRef} 
+                        blackPiecesTakenState={blackPiecesTakenState} 
                         whiteUsername={whiteUsername}
                         blackUsername={blackUsername}
-                        username={username}
+                        usernameRef={usernameRef}
+                        usernameState={usernameState}
                     />
                 </div>
             </div>
             <Modal
-                show={show}
-                onHide={handleClose}
+                show={showModal}
+                onHide={handleModalClose}
                 backdrop="static"
                 keyboard={false}
             >
@@ -191,7 +411,7 @@ export default function GameRoom() {
                     <Modal.Title>Create a Username</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <input type='text' className='form-control' value={username} placeholder='Username' onChange={handleModalInputChange} />
+                    <input type='text' className='form-control' value={usernameState} placeholder='Username' onChange={handleModalInputChange} />
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="primary" onClick={attemptUsernameCreate}>Let's Go</Button>
