@@ -95,6 +95,8 @@ export default function GameRoom() {
             setWhiteUsername(room.whitePlayer)
             setTeamUp(room.teamUp)
             setWatchers(room.watchers)
+            setWhitePiecesTaken(room.whitePiecesTaken)
+            setBlackPiecesTaken(room.blackPiecesTaken)
         })
 
         socket.current.on('usernameCreated', newUser => {

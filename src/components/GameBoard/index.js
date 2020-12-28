@@ -4,10 +4,10 @@ import board from './board'
 import { useParams } from 'react-router-dom'
 import { render } from '@testing-library/react'
 // destructure createBoard file for functions to create & manipulate board
-const { 
-    createNewBoardPieces, 
-    createPiecesInstancesArray, 
-    getPotentialMoves 
+const {
+    createNewBoardPieces,
+    createPiecesInstancesArray,
+    getPotentialMoves
 } = board
 
 const pieceIcons = {
@@ -22,16 +22,16 @@ const pieceIcons = {
 const letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
 
 export default function GameBoard(props) {
-    const { 
+    const {
         teamRef,
-        teamState, 
-        socket, 
-        isSocketConnected, 
+        teamState,
+        socket,
+        isSocketConnected,
         usernameRef,
         usernameState,
         teamUpRef,
-        teamUpState, 
-        setTeamUp, 
+        teamUpState,
+        setTeamUp,
         isGameActiveRef,
         isGameActiveState,
         updatePiecesTaken
@@ -194,6 +194,8 @@ export default function GameBoard(props) {
                 setPieces(newPiecesArr)
                 // update array of pieces taken
                 updatePiecesTaken(pieceAtNewSpot)
+                // send piece taken to server
+                socket.current.emit('pieceTaken', pieceAtNewSpot)
             } else {
                 // if no piece is at new square, just update the pieces on the board
                 selectedPiece.setCurrentLocation({ letter: newLocation.letter, number: newLocation.number })
@@ -279,7 +281,7 @@ export default function GameBoard(props) {
 
         // reset states
         setCurrentlySelectedPiece({})
-        
+
         setSelectedPieceOpenSpots([])
 
         // send message to server that pieces array has changed since this function gets called when a piece gets moved
@@ -304,7 +306,7 @@ export default function GameBoard(props) {
                 // get the currently selected piece, will be undefined if no piece is selected
                 let selectedPiece = getPieceReference(currentlySelectedPiece.current)
                 // if a piece is selected and a piece is at the square you are trying to move to , check if they are the same color
-                let piecesAreSameTeam = selectedPiece && pieceAtClickedSquare ? selectedPiece.color === pieceAtClickedSquare.color: false
+                let piecesAreSameTeam = selectedPiece && pieceAtClickedSquare ? selectedPiece.color === pieceAtClickedSquare.color : false
 
                 // if there is a selected piece, user must be looking to move that piece
                 if (selectedPiece && !piecesAreSameTeam && (selectedPiece.currentLocation.letter !== clickedLocationLetter || selectedPiece.currentLocation.number !== clickedLocationNumber)) {
