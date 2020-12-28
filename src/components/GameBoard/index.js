@@ -33,7 +33,8 @@ export default function GameBoard(props) {
         teamUpState, 
         setTeamUp, 
         isGameActiveRef,
-        isGameActiveState
+        isGameActiveState,
+        updatePiecesTaken
     } = props
 
     const [boardSquaresState, setBoardSquaresState] = useState([])
@@ -191,6 +192,8 @@ export default function GameBoard(props) {
                 updatePieceLocation(selectedPiece.currentLocation, newLocation)
                 // update pieces state with new array of pieces
                 setPieces(newPiecesArr)
+                // update array of pieces taken
+                updatePiecesTaken(pieceAtNewSpot)
             } else {
                 // if no piece is at new square, just update the pieces on the board
                 selectedPiece.setCurrentLocation({ letter: newLocation.letter, number: newLocation.number })
@@ -214,6 +217,8 @@ export default function GameBoard(props) {
             updatePieceLocation(selectedPiece.currentLocation, newLocation)
             // update pieces state with new array of pieces
             setPieces(newPiecesArr)
+            // update array of pieces taken
+            updatePiecesTaken(pieceAtNewSpot)
         } else {
             // if no piece is at new square, just update the pieces on the board
             selectedPiece.setCurrentLocation({ letter: newLocation.letter, number: newLocation.number })
