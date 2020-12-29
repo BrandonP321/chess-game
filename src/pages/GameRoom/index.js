@@ -17,8 +17,18 @@ export default function GameRoom() {
     const [showModal, setShowModal] = useState(true)
 
     // state of heading and button showing when game is inactive
-    const [gamePendingHeading, setGamePendingHeading] = useState('Waiting for second Player')
-    const [gamePendingButtonText, setGamePendingButtonText] = useState('')
+    const [gamePendingHeading, setGamePendingHeadingState] = useState('Waiting for Second Player')
+    const gamePendingHeadingRef = useRef('Waiting for Second Player')
+    const setGamePendingHeading = data => {
+        gamePendingButtonTextRef.current = data
+        setGamePendingHeadingState(data)
+    }
+    const [gamePendingButtonText, setGamePendingButtonTextState] = useState('')
+    const gamePendingButtonTextRef = useRef('')
+    const setGamePendingButtonText = data => {
+        gamePendingButtonTextRef.current = data
+        setGamePendingButtonTextState(data)
+    }
 
 
     // state and ref for people spectating the game
@@ -32,8 +42,18 @@ export default function GameRoom() {
         setUsernameState(data)
     }
 
-    const [whiteUsername, setWhiteUsername] = useState('')
-    const [blackUsername, setBlackUsername] = useState('')
+    const [whiteUsername, setWhiteUsernameState] = useState('')
+    const whiteUsernameRef = useRef('')
+    const setWhiteUsername = data => {
+        whiteUsernameRef.current = data
+        setWhiteUsernameState(data)
+    }
+    const [blackUsername, setBlackUsernameState] = useState('')
+    const blackUsernameRef = useRef('')
+    const setBlackUsername = data => {
+        blackUsernameRef.current = data
+        setBlackUsernameState(data)
+    }
 
     // state and ref for white pieces taken by black player
     const [whitePiecesTakenState, setWhitePiecesTakenState] = useState([])
@@ -65,6 +85,8 @@ export default function GameRoom() {
     const setIsGameActive = data => {
         isGameActiveRef.current = data;
         setIsGameActiveState(data);
+        // update boolean for game status on server
+        socket.current.emit('gameStatusChange', data)
     }
 
     // state and ref for which team is able to move
@@ -102,23 +124,48 @@ export default function GameRoom() {
             setWatchers(room.watchers)
             setWhitePiecesTaken(room.whitePiecesTaken)
             setBlackPiecesTaken(room.blackPiecesTaken)
+            setIsGameActive(room.gameStatus)
         })
 
         socket.current.on('usernameCreated', newUser => {
-            console.log('username good, color: ' + newUser.color)
-            // hide the modal
-            setShowModal(!showModal)
-            // update hooks for user's username
-            setUsername(newUser.username)
-            // assign team and username to hooks based on team color
-            if (newUser.color === 'white') {
-                setTeam('white')
-                setWhiteUsername(newUser.username)
-            } else if (newUser.color === 'black') {
-                setTeam('black')
-                setBlackUsername(newUser.username)
+            if (newUser) {
+                // hide the modal
+                setShowModal(!showModal)
+                // update hooks for user's username
+                setUsername(newUser.username)
+                // assign team and username to hooks based on team color
+                if (newUser.color === 'white') {
+                    setTeam('white')
+                    setWhiteUsername(newUser.username)
+                } else if (newUser.color === 'black') {
+                    setTeam('black')
+                    setBlackUsername(newUser.username)
+                } else {
+                    setTeam('watcher')
+                }
+                // if there is a user in both the white and black spot, update overlay text for game to start
+                if (whiteUsernameRef.current && blackUsernameRef.current) {
+                    setGamePendingHeadingState('Game Ready to Begin')
+                    setGamePendingButtonText("Start Game")
+                }
             } else {
-                setTeam('watcher')
+                console.log('username taken')
+            }
+        })
+
+        socket.current.on('newPlayerJoined', user => {
+            // add new user's username to state
+            if (user.color === 'white') {
+                setWhiteUsername(user.username)
+            } else if (user.color === 'black') {
+                setBlackUsername(user.username)
+            } else {
+                setWatchers([...watchers, user.username])
+            }
+            // if game is waiting on a second user to start, update display to let user start the game
+            if (gamePendingHeadingRef.current === 'Waiting for Second Player') {
+                setGamePendingHeading("Game Ready to Begin")
+                setGamePendingButtonText("Start Game")
             }
         })
 
@@ -259,6 +306,7 @@ export default function GameRoom() {
                         blackUsername={blackUsername}
                         usernameRef={usernameRef}
                         usernameState={usernameState}
+                        watchers={watchers}
                     />
                 </div>
             </div>

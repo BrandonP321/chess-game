@@ -19,7 +19,8 @@ export default function PlayersAside(props) {
         whiteUsername, 
         blackUsername, 
         usernameRef,
-        usernameState 
+        usernameState,
+        watchers
     } = props
     
     return (
@@ -55,6 +56,9 @@ export default function PlayersAside(props) {
                 </div>
             </div>
             <div className='spectators-container'>
+                {watchers.map(watcher => {
+                    return <p>{watcher}</p>
+                })}
             </div>
         </div>
     )

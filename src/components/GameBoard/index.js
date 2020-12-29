@@ -32,6 +32,7 @@ export default function GameBoard(props) {
         teamUpRef,
         teamUpState,
         setTeamUp,
+        watchers,
         isGameActiveRef,
         isGameActiveState,
         updatePiecesTaken,
