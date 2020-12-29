@@ -111,6 +111,11 @@ export default function GameBoard(props) {
                     setPieces(piecesWithInstances)
                 }
             })
+
+            socket.current.on('resetGame', () => {
+                // on game reset, reset board pieces
+                setPieces(createNewBoardPieces())
+            })
         }
     }, [isSocketConnected])
 

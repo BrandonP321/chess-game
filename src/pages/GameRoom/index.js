@@ -137,6 +137,14 @@ export default function GameRoom() {
             setIsGameActive(false)
         })
 
+        socket.current.on('resetGame', () => {
+            // reset all states and refs
+            setWhitePiecesTaken([])
+            setBlackPiecesTaken([])
+            setTeamUp('white')
+            setIsGameActive(true)
+        })
+
         socket.current.on('userLeft', user => {
             const { team, username } = user
             console.log('user left', user)
@@ -209,6 +217,9 @@ export default function GameRoom() {
                     <button onClick={() => {
                         socket.current.emit('beginGame')
                     }}>Start Game</button>
+                    <button onClick={() => {
+                        socket.current.emit('startNewGame')
+                    }}>reset Game</button>
                 </div>
                 <div className='game-aside-content'>
                     <PlayersAside 
