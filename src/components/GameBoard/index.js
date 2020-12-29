@@ -34,7 +34,12 @@ export default function GameBoard(props) {
         setTeamUp,
         isGameActiveRef,
         isGameActiveState,
-        updatePiecesTaken
+        updatePiecesTaken,
+        gamePendingHeading,
+        gamePendingButtonText,
+        handleOverlayButtonClick,
+        setGamePendingHeading,
+        setGamePendingButtonText
     } = props
 
     const [boardSquaresState, setBoardSquaresState] = useState([])
@@ -364,6 +369,16 @@ export default function GameBoard(props) {
         <>
             <div className='board'>
                 {boardSquaresState.map(square => square)}
+                <div className={`pending-game-overlay${!isGameActiveState ? ' show-pending-overlay': ''}`}>
+                    <div className='pending-game-text-container'>
+                        <h2 className='pending-game-header'>{gamePendingHeading}</h2>
+                        {gamePendingButtonText ?
+                            // show button if there is text for the button
+                            <button className='btn btn-primary pending-game-button' onClick={handleOverlayButtonClick}>{gamePendingButtonText}</button> :
+                            false
+                        }
+                    </div>
+                </div>
             </div>
             <button onClick={renderPieces}>Click me</button>
         </>

@@ -16,6 +16,11 @@ export default function GameRoom() {
     // controls the state of the modal
     const [showModal, setShowModal] = useState(true)
 
+    // state of heading and button showing when game is inactive
+    const [gamePendingHeading, setGamePendingHeading] = useState('Waiting for second Player')
+    const [gamePendingButtonText, setGamePendingButtonText] = useState('')
+
+
     // state and ref for people spectating the game
     const [watchers, setWatchers] = useState([])
 
@@ -132,8 +137,11 @@ export default function GameRoom() {
         })
 
         socket.current.on('gameOver', winningTeam => {
-            console.log(winningTeam + ' wins')
+            // capitalize color of winning team
+            const teamCapitalized = winningTeam.charAt(0).toUpperCase() + winningTeam.slice(1)
             // stop game
+            setGamePendingHeading(teamCapitalized + ' Wins')
+            setGamePendingButtonText('Start New Game')
             setIsGameActive(false)
         })
 
@@ -196,6 +204,19 @@ export default function GameRoom() {
         }
     }
 
+    const handleOverlayButtonClick = event => {
+        // based on the buttons text, execute the appropriate code
+        const btnText = event.target.innerText
+        console.log(btnText)
+        if (btnText === 'Start Game') {
+            socket.current.emit('beginGame')
+        } else if (btnText === 'resumeGame') {
+            socket.current.emit('beginGame')
+        } else if (btnText === 'Start New Game') {
+            socket.current.emit('startNewGame')
+        }
+    }
+
     return (
         <>
             <div className='content-wrapper'>
@@ -213,6 +234,11 @@ export default function GameRoom() {
                         isGameActiveRef={isGameActiveRef}
                         isGameActiveState={isGameActiveState}
                         updatePiecesTaken={updatePiecesTaken}
+                        gamePendingHeading={gamePendingHeading}
+                        setGamePendingHeading={setGamePendingHeading}
+                        gamePendingButtonText={gamePendingButtonText}
+                        setGamePendingButtonText={setGamePendingButtonText}
+                        handleOverlayButtonClick={handleOverlayButtonClick}
                     />
                     <button onClick={() => {
                         socket.current.emit('beginGame')
