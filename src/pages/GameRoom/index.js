@@ -131,6 +131,12 @@ export default function GameRoom() {
             setIsGameActive(true)
         })
 
+        socket.current.on('gameOver', winningTeam => {
+            console.log(winningTeam + ' wins')
+            // stop game
+            setIsGameActive(false)
+        })
+
         socket.current.on('userLeft', user => {
             const { team, username } = user
             console.log('user left', user)

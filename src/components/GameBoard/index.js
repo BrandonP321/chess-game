@@ -196,6 +196,11 @@ export default function GameBoard(props) {
                 updatePiecesTaken(pieceAtNewSpot)
                 // send piece taken to server
                 socket.current.emit('pieceTaken', pieceAtNewSpot)
+
+                // if piece taken is the king, emit the loss to the server
+                if (pieceAtNewSpot.pieceType === 'king') {
+                    socket.current.emit('kingTaken', teamRef.current)
+                }
             } else {
                 // if no piece is at new square, just update the pieces on the board
                 selectedPiece.setCurrentLocation({ letter: newLocation.letter, number: newLocation.number })
