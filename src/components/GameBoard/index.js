@@ -122,6 +122,11 @@ export default function GameBoard(props) {
                 // on game reset, reset board pieces
                 setPieces(createNewBoardPieces())
             })
+
+            socket.current.on('userTakingOver', user => {
+                // pieces need to be re-rendered to add new event listeners to them
+                // renderPieces()
+            })
         }
     }, [isSocketConnected])
 
@@ -140,8 +145,9 @@ export default function GameBoard(props) {
             // update board squares reference to contain up to date version of board
             setBoardSquaresRef(boardSquaresState)
             renderPieces()
+            console.log('creating click event listeners')
             // now that boards are loaded back on to the page, add event listeners to each square
-            createClickEventListener()
+            // createClickEventListener()
         }
     }, [boardSquaresState])
 
@@ -253,7 +259,7 @@ export default function GameBoard(props) {
             letters.forEach(letter => {
                 boardSquares.push(<div className={isDarkSquare ? 'board-square square-light' : 'board-square square-dark'} data-letter={letter} data-number={i} data-location={letter + i}>
                     <div className='square-available-circle'></div>
-                    <div className='square-clickable' ></div>
+                    <div className='square-clickable' onClick={handleSquareClick}></div>
                 </div>)
                 // only change isDarkSquare boolean if not on last letter
                 if (letter !== 'h') {
@@ -266,7 +272,7 @@ export default function GameBoard(props) {
         if (team === 'black') {
             boardSquares = boardSquares.reverse()
         }
-
+        console.log('setting board squares state')
         return setBoardSquaresState(boardSquares)
     }
 
@@ -307,73 +313,71 @@ export default function GameBoard(props) {
         }
     }
 
-    const createClickEventListener = () => {
-        document.querySelectorAll('.square-clickable').forEach(square => {
-            square.addEventListener('click', event => {
-                // if the team that is up is not the user's team or game is not active, don't let anything happen on click
-                if (teamUpRef.current !== teamRef.current || !isGameActiveRef.current) {
-                    console.log('you are not up')
-                    return
-                }
-                const clickedLocationLetter = event.target.parentElement.getAttribute('data-letter')
-                const clickedLocationNumber = parseInt(event.target.parentElement.getAttribute('data-number'))
-                // get the piece at the given square, if no piece will be undefined
-                const pieceAtClickedSquare = getPieceReference({ letter: clickedLocationLetter, number: clickedLocationNumber })
-                // get the currently selected piece, will be undefined if no piece is selected
-                let selectedPiece = getPieceReference(currentlySelectedPiece.current)
-                // if a piece is selected and a piece is at the square you are trying to move to , check if they are the same color
-                let piecesAreSameTeam = selectedPiece && pieceAtClickedSquare ? selectedPiece.color === pieceAtClickedSquare.color : false
+    const handleSquareClick = (event) => {
+        console.log('click')
+        // if the team that is up is not the user's team or game is not active, don't let anything happen on click
+        if (teamUpRef.current !== teamRef.current || !isGameActiveRef.current) {
+            console.log('you are not up')
+            return
+        }
+        const clickedLocationLetter = event.target.parentElement.getAttribute('data-letter')
+        const clickedLocationNumber = parseInt(event.target.parentElement.getAttribute('data-number'))
+        // get the piece at the given square, if no piece will be undefined
+        const pieceAtClickedSquare = getPieceReference({ letter: clickedLocationLetter, number: clickedLocationNumber })
+        // get the currently selected piece, will be undefined if no piece is selected
+        let selectedPiece = getPieceReference(currentlySelectedPiece.current)
+        // if a piece is selected and a piece is at the square you are trying to move to , check if they are the same color
+        let piecesAreSameTeam = selectedPiece && pieceAtClickedSquare ? selectedPiece.color === pieceAtClickedSquare.color : false
 
-                // if there is a selected piece, user must be looking to move that piece
-                if (selectedPiece && !piecesAreSameTeam && (selectedPiece.currentLocation.letter !== clickedLocationLetter || selectedPiece.currentLocation.number !== clickedLocationNumber)) {
-                    movePiece(selectedPiece, { letter: clickedLocationLetter, number: clickedLocationNumber })
-                }
+        console.log(pieceAtClickedSquare)
+        // if there is a selected piece, user must be looking to move that piece
+        if (selectedPiece && !piecesAreSameTeam && (selectedPiece.currentLocation.letter !== clickedLocationLetter || selectedPiece.currentLocation.number !== clickedLocationNumber)) {
+            movePiece(selectedPiece, { letter: clickedLocationLetter, number: clickedLocationNumber })
+        }
+        // if user is clicking a piece to see where it can move to, show available squares
+        else if (pieceAtClickedSquare) {
+            // update state to contain open spots for selcted piece
+            // setSelectedPieceOpenSpots([])
 
-                // if user is clicking a piece to see where it can move to, show available squares
-                else if (pieceAtClickedSquare) {
-                    // update state to contain open spots for selcted piece
-                    // setSelectedPieceOpenSpots([])
+            // if another square is already clicked and user is swithcing to another piece
+            if (selectedPiece && (clickedLocationLetter !== selectedPiece.currentLocation.letter || clickedLocationNumber !== selectedPiece.currentLocation.number)) {
+                // update currently selected piece state to new piece
+                setCurrentlySelectedPiece({ letter: clickedLocationLetter, number: clickedLocationNumber })
+                // update available spots state
+                setSelectedPieceOpenSpots(getPotentialMoves(pieceAtClickedSquare, pieces.current))
+            }
+            // if user is just re-selcting their currently selcted piece, remove open spots from board
+            else if (selectedPiece && clickedLocationLetter === selectedPiece.currentLocation.letter && clickedLocationNumber === selectedPiece.currentLocation.number) {
+                setSelectedPieceOpenSpots([])
+                // reset currently selected piece state
+                setCurrentlySelectedPiece({})
+            }
 
-                    // if another square is already clicked and user is swithcing to another piece
-                    if (selectedPiece && (clickedLocationLetter !== selectedPiece.currentLocation.letter || clickedLocationNumber !== selectedPiece.currentLocation.number)) {
-                        // update currently selected piece state to new piece
-                        setCurrentlySelectedPiece({ letter: clickedLocationLetter, number: clickedLocationNumber })
-                        // update available spots state
-                        setSelectedPieceOpenSpots(getPotentialMoves(pieceAtClickedSquare, pieces.current))
-                    }
-                    // if user is just re-selcting their currently selcted piece, remove open spots from board
-                    else if (selectedPiece && clickedLocationLetter === selectedPiece.currentLocation.letter && clickedLocationNumber === selectedPiece.currentLocation.number) {
-                        setSelectedPieceOpenSpots([])
-                        // reset currently selected piece state
-                        setCurrentlySelectedPiece({})
-                    }
+            // if no other piece is currently selected, select piece and show available spots if team is same as user's team
+            else if (!selectedPiece && pieceAtClickedSquare.color === teamRef.current) {
+                setCurrentlySelectedPiece({ letter: clickedLocationLetter, number: clickedLocationNumber })
+                setSelectedPieceOpenSpots(getPotentialMoves(pieceAtClickedSquare, pieces.current))
+            }
 
-                    // if no other piece is currently selected, select piece and show available spots if team is same as user's team
-                    else if (!selectedPiece && pieceAtClickedSquare.color === teamRef.current) {
-                        setCurrentlySelectedPiece({ letter: clickedLocationLetter, number: clickedLocationNumber })
-                        setSelectedPieceOpenSpots(getPotentialMoves(pieceAtClickedSquare, pieces.current))
-                    }
+            else {
+                console.log('user is on a different team than selected piece')
+            }
 
-                    else {
-                        console.log('user is on a different team than selected piece')
-                    }
+        }
 
-                }
-
-                else {
-                }
-            })
-        })
+        else {
+            console.log('nothing is happening')
+        }
     }
 
     return (
         <>
             <div className='board'>
                 {boardSquaresState.map(square => square)}
-                <div className={`pending-game-overlay${!isGameActiveState ? ' show-pending-overlay': ''}`}>
+                <div className={`pending-game-overlay${!isGameActiveState ? ' show-pending-overlay' : ''}`}>
                     <div className='pending-game-text-container'>
                         <h2 className='pending-game-header'>{gamePendingHeading}</h2>
-                        {gamePendingButtonText ?
+                        {gamePendingButtonText && teamState !== 'watcher' ?
                             // show button if there is text for the button
                             <button className='btn btn-primary pending-game-button' onClick={handleOverlayButtonClick}>{gamePendingButtonText}</button> :
                             false

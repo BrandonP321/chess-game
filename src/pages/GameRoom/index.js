@@ -95,6 +95,9 @@ export default function GameRoom() {
     const setTeamUp = data => {
         teamUpRef.current = data
         setTeamUpState(data)
+
+        // update value on server
+        socket.current.emit('updateTeamUp', data)
     }
 
     // state indicating if site is connected to the socket.io server
@@ -213,6 +216,25 @@ export default function GameRoom() {
             } else {
                 setWatchers(watchers.filter(watcher => watcher !== username))
             }
+        })
+
+        // when user has left but a spectator is taking over for them
+        socket.current.on('userTakingOver', user => {
+            // update game status to active
+            setIsGameActive(true)
+            console.log('user taking over: ', user)
+            // assign user's username to appropriate state
+            if (user.team === 'white') {
+                setWhiteUsername(user.team)
+            } else if (user.team === 'black') {
+                setBlackUsername('black')
+            }
+            // if you are the user taking over, update your team
+            if (usernameRef.current === user.username) {
+                setTeam(user.team)
+            }
+            // remove user from array of watchers in state
+            setWatchers(watchers.filter(watcher => watcher !== user.username))
         })
 
         // tell the server when a player is leaving the page
