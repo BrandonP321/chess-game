@@ -225,9 +225,9 @@ export default function GameRoom() {
             console.log('user taking over: ', user)
             // assign user's username to appropriate state
             if (user.team === 'white') {
-                setWhiteUsername(user.team)
+                setWhiteUsername(user.username)
             } else if (user.team === 'black') {
-                setBlackUsername('black')
+                setBlackUsername(user.username)
             }
             // if you are the user taking over, update your team
             if (usernameRef.current === user.username) {
