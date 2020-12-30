@@ -12,6 +12,7 @@ const pieceIcons = {
 
 export default function PlayersAside(props) {
     const { 
+        socket,
         teamRef,
         teamState, 
         whitePiecesTakenState, 
@@ -22,9 +23,22 @@ export default function PlayersAside(props) {
         usernameState,
         watchers
     } = props
+
+    const askForDraw = () => {
+        // emite to server that user wants to draw
+    }
+
+    const playerResign = () => {
+        // emit to other users that user has resigned
+        socket.current.emit('resign', { username: usernameRef.current, team: teamRef.current })
+    }
     
     return (
         <div>
+            <div className='player-btns'>
+                <button onClick={askForDraw}>Draw</button>
+                <button onClick={playerResign}>Resign</button>
+            </div>
             <div className='player-info-container'>
                 <h3 className='player-username'>
                     <span><i class="fas fa-chess-king team-icon icon-white"></i> </span>

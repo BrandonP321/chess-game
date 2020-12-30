@@ -254,6 +254,16 @@ export default function GameRoom() {
             setWatchers(watchers.filter(watcher => watcher !== user.username))
         })
 
+        socket.current.on('userResigned', user => {
+            console.log(user)
+            const teamCapitalized = user.team.charAt(0).toUpperCase() + user.team.slice(1)
+            const winningTeam = user.team === 'white' ? 'Black' : 'White'
+            // end game and show which team won
+            setIsGameActive(false)
+            setGamePendingHeading(`${teamCapitalized} Resigned, ${winningTeam} Wins`)
+            setGamePendingButtonText('Start New Game')
+        })
+
         // tell the server when a player is leaving the page
         window.onbeforeunload = () => {
             socket.current.emit('userLeaving', { username: usernameRef.current, team: teamRef.current})
@@ -344,6 +354,7 @@ export default function GameRoom() {
                         usernameRef={usernameRef}
                         usernameState={usernameState}
                         watchers={watchers}
+                        socket={socket}
                     />
                 </div>
             </div>
