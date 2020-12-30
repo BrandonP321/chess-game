@@ -102,7 +102,7 @@ export default function PlayersAside(props) {
             </div>
             <div className='spectators-container'>
                 {watchers.map(watcher => {
-                    return <p>{watcher}</p>
+                    return <p>{watcher === usernameRef.current ? 'You' : watcher}</p>
                 })}
             </div>
         </div>

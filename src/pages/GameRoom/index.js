@@ -148,6 +148,7 @@ export default function GameRoom() {
                     setBlackUsername(newUser.username)
                 } else {
                     setTeam('watcher')
+                    setWatchers([...watchers, newUser.username])
                 }
                 // if there is a user in both the white and black spot, update overlay text for game to start
                 if (whiteUsernameRef.current && blackUsernameRef.current) {
