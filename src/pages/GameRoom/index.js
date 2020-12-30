@@ -20,8 +20,9 @@ export default function GameRoom() {
     const [gamePendingHeading, setGamePendingHeadingState] = useState('Waiting for Second Player')
     const gamePendingHeadingRef = useRef('Waiting for Second Player')
     const setGamePendingHeading = data => {
-        gamePendingButtonTextRef.current = data
+        gamePendingHeadingRef.current = data
         setGamePendingHeadingState(data)
+        console.log('pending heading updated')
     }
     const [gamePendingButtonText, setGamePendingButtonTextState] = useState('')
     const gamePendingButtonTextRef = useRef('')
@@ -83,6 +84,7 @@ export default function GameRoom() {
     const [isGameActiveState, setIsGameActiveState] = useState(false)
     const isGameActiveRef = useRef(false)
     const setIsGameActive = data => {
+        console.log('game status updated to ', data)
         isGameActiveRef.current = data;
         setIsGameActiveState(data);
         // update boolean for game status on server
@@ -120,6 +122,7 @@ export default function GameRoom() {
 
         // when the user joins a room, get all current info on that room
         socket.current.on('roomJoined', room => {
+            console.log('room joined ', room)
             // update state and reference hooks to contain current info on room
             setBlackUsername(room.blackPlayer)
             setWhiteUsername(room.whitePlayer)
@@ -148,8 +151,8 @@ export default function GameRoom() {
                 }
                 // if there is a user in both the white and black spot, update overlay text for game to start
                 if (whiteUsernameRef.current && blackUsernameRef.current) {
-                    setGamePendingHeadingState('Game Ready to Begin')
-                    setGamePendingButtonText("Start Game")
+                    setGamePendingHeading('Game Ready to Begin')
+                    // setGamePendingButtonText("Start Game")
                 }
             } else {
                 console.log('username taken')
@@ -165,10 +168,15 @@ export default function GameRoom() {
             } else {
                 setWatchers([...watchers, user.username])
             }
+            console.log(gamePendingHeadingRef.current)
             // if game is waiting on a second user to start, update display to let user start the game
             if (gamePendingHeadingRef.current === 'Waiting for Second Player') {
                 setGamePendingHeading("Game Ready to Begin")
                 setGamePendingButtonText("Start Game")
+            } else if (gamePendingHeadingRef.current === 'User Left, Waiting for New Player') {
+                // if user left and game was waiting for a new user, allow game to resume
+                setGamePendingHeading('New User Joined')
+                setGamePendingButtonText("Resume Game")
             }
         })
 
@@ -183,6 +191,8 @@ export default function GameRoom() {
                 console.log('team should be updated')
                 setTeamUp(team)
             }
+            // remove text from game pending button
+            setGamePendingButtonText('')
             setIsGameActive(true)
         })
 
@@ -203,6 +213,11 @@ export default function GameRoom() {
             setIsGameActive(true)
         })
 
+        socket.current.on('resumeGame', () => {
+            // when game is resumed, game status just needs to be updated
+            setIsGameActive(true)
+        })
+
         socket.current.on('userLeft', user => {
             const { team, username } = user
             console.log('user left', user)
@@ -210,9 +225,11 @@ export default function GameRoom() {
             if (team === 'white') {
                 setWhiteUsername('')
                 setIsGameActive(false)
+                setGamePendingHeading('User Left, Waiting for New Player')
             } else if (team === 'black') {
                 setBlackUsername('')
                 setIsGameActive(false)
+                setGamePendingHeading('User Left, Waiting for New Player')
             } else {
                 setWatchers(watchers.filter(watcher => watcher !== username))
             }
@@ -279,8 +296,11 @@ export default function GameRoom() {
         console.log(btnText)
         if (btnText === 'Start Game') {
             socket.current.emit('beginGame')
-        } else if (btnText === 'resumeGame') {
-            socket.current.emit('beginGame')
+        } else if (btnText === 'Resume Game') {
+            // if game is to be resumed, update the game status
+            setIsGameActive(true)
+            setGamePendingButtonText('')
+            socket.current.emit('resumeGame')
         } else if (btnText === 'Start New Game') {
             socket.current.emit('startNewGame')
         }
@@ -291,6 +311,7 @@ export default function GameRoom() {
             <div className='content-wrapper'>
                 <div className='game-main-content'>
                     <GameBoard 
+                        roomId={room}
                         teamRef={teamRef}
                         teamState={teamState} 
                         socket={socket} 

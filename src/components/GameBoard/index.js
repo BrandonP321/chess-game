@@ -23,6 +23,7 @@ const letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
 
 export default function GameBoard(props) {
     const {
+        roomId,
         teamRef,
         teamState,
         socket,
@@ -377,6 +378,9 @@ export default function GameBoard(props) {
                 <div className={`pending-game-overlay${!isGameActiveState ? ' show-pending-overlay' : ''}`}>
                     <div className='pending-game-text-container'>
                         <h2 className='pending-game-header'>{gamePendingHeading}</h2>
+                        <p>
+                            {`Invite your friends!  Send them your current url or have them join with the room's ID of ${roomId}`}
+                        </p>
                         {gamePendingButtonText && teamState !== 'watcher' ?
                             // show button if there is text for the button
                             <button className='btn btn-primary pending-game-button' onClick={handleOverlayButtonClick}>{gamePendingButtonText}</button> :
