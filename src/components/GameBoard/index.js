@@ -385,7 +385,6 @@ export default function GameBoard(props) {
                     </div>
                 </div>
             </div>
-            <button onClick={renderPieces}>Click me</button>
         </>
     )
 }

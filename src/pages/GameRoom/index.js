@@ -309,12 +309,6 @@ export default function GameRoom() {
                         setGamePendingButtonText={setGamePendingButtonText}
                         handleOverlayButtonClick={handleOverlayButtonClick}
                     />
-                    <button onClick={() => {
-                        socket.current.emit('beginGame')
-                    }}>Start Game</button>
-                    <button onClick={() => {
-                        socket.current.emit('startNewGame')
-                    }}>reset Game</button>
                 </div>
                 <div className='game-aside-content'>
                     <PlayersAside 
