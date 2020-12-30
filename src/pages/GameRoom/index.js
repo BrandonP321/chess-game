@@ -205,6 +205,13 @@ export default function GameRoom() {
             setIsGameActive(false)
         })
 
+        socket.current.on('gameIsDraw', () => {
+            // when the game is a draw, end the game and let the user restart the game
+            setIsGameActive(false)
+            setGamePendingHeading('Game is a Draw')
+            setGamePendingButtonText('Start New Game')
+        })
+
         socket.current.on('resetGame', () => {
             // reset all states and refs
             setWhitePiecesTaken([])
@@ -355,6 +362,7 @@ export default function GameRoom() {
                         usernameState={usernameState}
                         watchers={watchers}
                         socket={socket}
+                        isSocketConnected={isSocketConnected}
                     />
                 </div>
             </div>

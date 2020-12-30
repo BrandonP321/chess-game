@@ -13,6 +13,7 @@ const pieceIcons = {
 export default function PlayersAside(props) {
     const { 
         socket,
+        isSocketConnected,
         teamRef,
         teamState, 
         whitePiecesTakenState, 
@@ -21,11 +22,36 @@ export default function PlayersAside(props) {
         blackUsername, 
         usernameRef,
         usernameState,
-        watchers
+        watchers,
     } = props
-
+    
+    const [drawIsAsked, setDrawIsAsked] = useState(false)
+    
+        useEffect(() => {
+            if (socket.current) {
+                socket.current.on('userWantsDraw', () => {
+                    // if the current user is on either team, ask if they want a draw
+                    if (teamRef.current === 'white' || teamRef.current === 'black') {
+                        setDrawIsAsked(true)
+                    }
+                })
+            }
+        }, [isSocketConnected])
+    
     const askForDraw = () => {
         // emite to server that user wants to draw
+        socket.current.emit('userWantsDraw')
+    }
+
+    const answerDraw = (doesAccept) => {
+        console.log('you answered draw with ', doesAccept)
+        // hide the text asking for a draw
+        setDrawIsAsked(false)
+
+        // if user accepts draw, send message to server to draw the game
+        if (doesAccept) {
+            socket.current.emit('userAcceptsDraw')
+        }
     }
 
     const playerResign = () => {
@@ -38,6 +64,11 @@ export default function PlayersAside(props) {
             <div className='player-btns'>
                 <button onClick={askForDraw}>Draw</button>
                 <button onClick={playerResign}>Resign</button>
+            </div>
+            <div className='draw-question-wrapper' style={drawIsAsked ? {} : {opacity: 0}}>
+                <p>Would you like to call it a draw?</p>
+                <button className='draw-btn-yes' onClick={() => answerDraw(true)}>Yes</button>
+                <button className='draw-btn-no' onClick={() => answerDraw(false)}>No</button>
             </div>
             <div className='player-info-container'>
                 <h3 className='player-username'>
