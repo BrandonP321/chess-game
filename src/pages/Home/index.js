@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react'
+import HomeHeader from '../../components/HomeHeader'
 import socketIOClient from 'socket.io-client'
 import './index.css'
 
@@ -49,6 +50,7 @@ export default function Home() {
 
     return (
         <>
+            <HomeHeader />
             <div className='home-bg-div'></div>
             <div className='home-content-wrapper'>
                 <div className='new-room-wrapper'>
