@@ -44,6 +44,8 @@ export default function GameBoard(props) {
         setGamePendingButtonText
     } = props
 
+    const [screenWidth, setScreenWidth] = useState(window.innerWidth)
+
     const [boardSquaresState, setBoardSquaresState] = useState([])
 
     // reference will be same as boardSquaresState but will be used as a reference for functions rather than for rendering the board
@@ -94,6 +96,11 @@ export default function GameBoard(props) {
         if (pieces.current.length < 1) {
             setPieces(createNewBoardPieces())
         }
+
+        // when window inner width changes, update the width in the state
+        window.addEventListener('resize', () => {
+            setScreenWidth(window.innerWidth)
+        })
     }, [])
 
     useEffect(() => {
@@ -367,23 +374,25 @@ export default function GameBoard(props) {
     }
 
     return (
-        <>
-            <div className='board'>
+        // based on screen's width, determine height of board
+        <div className='board' style={screenWidth < 850 ? { height: `${screenWidth}px` } : { height: `850px` }}>
+            {/* set font size to be inherited by each piece icon */}
+            <div className='board-squares-wrapper' style={screenWidth < 850 ? {fontSize: `${screenWidth / 8 * .8}px`} : {fontSize: `${850 / 8 * .8}px`}}>
                 {boardSquaresState.map(square => square)}
-                <div className={`pending-game-overlay${!isGameActiveState ? ' show-pending-overlay' : ''}`}>
-                    <div className='pending-game-text-container'>
-                        <h2 className='pending-game-header'>{gamePendingHeading}</h2>
-                        <p>
-                            {`Invite your friends!  Send them your current url or have them join with the room's ID of ${roomId}`}
-                        </p>
-                        {gamePendingButtonText && teamState !== 'watcher' ?
-                            // show button if there is text for the button
-                            <button className='btn btn-primary pending-game-button' onClick={handleOverlayButtonClick}>{gamePendingButtonText}</button> :
-                            false
-                        }
-                    </div>
+            </div>
+            <div className={`pending-game-overlay${!isGameActiveState ? ' show-pending-overlay' : ''}`}>
+                <div className='pending-game-text-container'>
+                    <h2 className='pending-game-header'>{gamePendingHeading}</h2>
+                    <p>
+                        {`Invite your friends!  Send them your current url or have them join with the room's ID of ${roomId}`}
+                    </p>
+                    {gamePendingButtonText && teamState !== 'watcher' ?
+                        // show button if there is text for the button
+                        <button className='btn btn-primary pending-game-button' onClick={handleOverlayButtonClick}>{gamePendingButtonText}</button> :
+                        false
+                    }
                 </div>
             </div>
-        </>
+        </div>
     )
 }
