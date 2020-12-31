@@ -66,10 +66,6 @@
     color: black;
 }
 
-.icon-container-black i {
-    /* -webkit-text-stroke: 1px white; */
-}
-
 .icon-container-white {
     color: white;
 }
@@ -87,7 +83,7 @@
 .piece-icon-container i {
     position: relative;
     font-size: inherit;
-    top: 10px;
+    bottom: 10%;
     color: inherit;
 }
 

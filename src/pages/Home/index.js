@@ -3,8 +3,8 @@ import HomeHeader from '../../components/HomeHeader'
 import socketIOClient from 'socket.io-client'
 import './index.css'
 
-const ENDPOINT = 'http://localhost:8000'
-// const ENDPOINT = 'https://chess-123-server.herokuapp.com'
+// endpoint for socket.io connection
+const ENDPOINT = process.env.REACT_APP_SOCKET_ENDPOINT
 
 export default function Home() {
     const socket = useRef()
