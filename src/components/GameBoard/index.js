@@ -123,11 +123,6 @@ export default function GameBoard(props) {
                 // on game reset, reset board pieces
                 setPieces(createNewBoardPieces())
             })
-
-            socket.current.on('userTakingOver', user => {
-                // pieces need to be re-rendered to add new event listeners to them
-                // renderPieces()
-            })
         }
     }, [isSocketConnected])
 

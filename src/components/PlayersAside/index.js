@@ -58,6 +58,10 @@ export default function PlayersAside(props) {
         // emit to other users that user has resigned
         socket.current.emit('resign', { username: usernameRef.current, team: teamRef.current })
     }
+
+    const tradePlacesWithSpectator = (spectator) => {
+
+    }
     
     return (
         <div>
@@ -102,7 +106,12 @@ export default function PlayersAside(props) {
             </div>
             <div className='spectators-container'>
                 {watchers.map(watcher => {
-                    return <p>{watcher === usernameRef.current ? 'You' : watcher}</p>
+                    return <p>
+                        {watcher === usernameRef.current ? 'You' : watcher} 
+                        <span>
+                            <button className='btn btn-primary' onClick={() => tradePlacesWithSpectator(watcher)}>Trade Places</button>
+                        </span>
+                    </p>
                 })}
             </div>
         </div>

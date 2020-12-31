@@ -33,7 +33,12 @@ export default function GameRoom() {
 
 
     // state and ref for people spectating the game
-    const [watchers, setWatchers] = useState([])
+    const [watchers, setWatchersState] = useState([])
+    const watchersRef = useRef([])
+    const setWatchers = data => {
+        setWatchersState(data)
+        watchersRef.current = data
+    }
 
     // state and ref for user's username
     const [usernameState, setUsernameState] = useState('')
@@ -148,7 +153,8 @@ export default function GameRoom() {
                     setBlackUsername(newUser.username)
                 } else {
                     setTeam('watcher')
-                    setWatchers([...watchers, newUser.username])
+                    console.log('setting watchers to ', [...watchers, newUser.username])
+                    setWatchers([...watchersRef.current, newUser.username])
                 }
                 // if there is a user in both the white and black spot, update overlay text for game to start
                 if (whiteUsernameRef.current && blackUsernameRef.current) {
@@ -167,7 +173,8 @@ export default function GameRoom() {
             } else if (user.color === 'black') {
                 setBlackUsername(user.username)
             } else {
-                setWatchers([...watchers, user.username])
+                console.log('new user joined, watchers: ', [...watchers, user.username])
+                setWatchers([...watchersRef.current, user.username])
             }
             console.log(gamePendingHeadingRef.current)
             // if game is waiting on a second user to start, update display to let user start the game
@@ -239,7 +246,7 @@ export default function GameRoom() {
                 setIsGameActive(false)
                 setGamePendingHeading('User Left, Waiting for New Player')
             } else {
-                setWatchers(watchers.filter(watcher => watcher !== username))
+                setWatchers(watchersRef.current.filter(watcher => watcher !== username))
             }
         })
 
@@ -259,7 +266,7 @@ export default function GameRoom() {
                 setTeam(user.team)
             }
             // remove user from array of watchers in state
-            setWatchers(watchers.filter(watcher => watcher !== user.username))
+            setWatchers(watchersRef.current.filter(watcher => watcher !== user.username))
         })
 
         socket.current.on('userResigned', user => {
