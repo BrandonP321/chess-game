@@ -60,7 +60,14 @@ export default function PlayersAside(props) {
     }
 
     const tradePlacesWithSpectator = (spectator) => {
-
+        // send message to server that a user and spectator are trading spots
+        socket.current.emit('givingSpotToSpectator', {
+            user: {
+                username: usernameRef.current,
+                team: teamRef.current
+            },
+            spectator: spectator
+        })
     }
     
     return (
@@ -109,7 +116,11 @@ export default function PlayersAside(props) {
                     return <p>
                         {watcher === usernameRef.current ? 'You' : watcher} 
                         <span>
-                            <button className='btn btn-primary' onClick={() => tradePlacesWithSpectator(watcher)}>Trade Places</button>
+                            {/* if user is on a team, allow them to give their place to a spectator */}
+                            {teamRef.current === 'white' || teamRef.current === 'black' ? 
+                                <button className='btn btn-primary' onClick={() => tradePlacesWithSpectator(watcher)}>Trade Places</button> :
+                                ''
+                            }
                         </span>
                     </p>
                 })}

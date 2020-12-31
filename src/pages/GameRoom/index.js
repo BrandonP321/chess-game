@@ -279,6 +279,28 @@ export default function GameRoom() {
             setGamePendingButtonText('Start New Game')
         })
 
+        socket.current.on('playerSpectatorTrade', players => {
+            const { user, spectator } = players
+            // remove spectator from list of spectators and add in player
+            const newSpectators = watchersRef.current.filter(watcher => watcher !== spectator)
+            newSpectators.push(user.username)
+            setWatchers(newSpectators)
+
+            // based on the player's team, switch their spot with the spectator
+            if (user.team === 'white') {
+                setWhiteUsername(spectator)
+            } else if (user.team === 'black') {
+                setBlackUsername(spectator)
+            }
+
+            // if the current user is the spectator or player, update their team
+            if (user.username === usernameRef.current) {
+                setTeam('watcher')
+            } else if (spectator === usernameRef.current) {
+                setTeam(user.team)
+            }
+        })
+
         // tell the server when a player is leaving the page
         window.onbeforeunload = () => {
             socket.current.emit('userLeaving', { username: usernameRef.current, team: teamRef.current})
