@@ -4,7 +4,11 @@ import board from './board'
 import { useParams } from 'react-router-dom'
 import { render } from '@testing-library/react'
 // destructure createBoard file for functions to create & manipulate board
-const { createNewBoardPieces, createWhiteTeamBoard, createBlackTeamBoard, getPotentialMoves } = board
+const {
+    createNewBoardPieces,
+    createPiecesInstancesArray,
+    getPotentialMoves
+} = board
 
 const pieceIcons = {
     rook: '<i class="fas fa-chess-rook piece-icon"></i>',
@@ -18,10 +22,29 @@ const pieceIcons = {
 const letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
 
 export default function GameBoard(props) {
-    const { team, socket, isSocketConnected, username, teamUp, setTeamUp } = props
+    const {
+        roomId,
+        teamRef,
+        teamState,
+        socket,
+        isSocketConnected,
+        usernameRef,
+        usernameState,
+        teamUpRef,
+        teamUpState,
+        setTeamUp,
+        watchers,
+        isGameActiveRef,
+        isGameActiveState,
+        updatePiecesTaken,
+        gamePendingHeading,
+        gamePendingButtonText,
+        handleOverlayButtonClick,
+        setGamePendingHeading,
+        setGamePendingButtonText
+    } = props
 
-    // indicates whether a piece is about to be removed by a function
-    const [doRemovePiece, setDoRemovePiece] = useState(false)
+    const [screenWidth, setScreenWidth] = useState(window.innerWidth)
 
     const [boardSquaresState, setBoardSquaresState] = useState([])
 
@@ -35,10 +58,7 @@ export default function GameBoard(props) {
     const pieces = useRef([])
     const setPieces = data => {
         pieces.current = data
-        console.log('should render pieces')
-        console.log(boardSquaresRef.current)
         if (pieces.current.length > 0 && boardSquaresRef.current.length > 0) {
-            console.log('rendering pieces from setting pieces array')
             renderPieces()
         }
     }
@@ -72,9 +92,15 @@ export default function GameBoard(props) {
 
     // on component load, ...
     useEffect(() => {
-        console.log(1)
-        // generate all board pieces and add them to the state
-        setPieces(createNewBoardPieces())
+        // if no pieces are set in the state, generate all board pieces and add them to the state
+        if (pieces.current.length < 1) {
+            setPieces(createNewBoardPieces())
+        }
+
+        // when window inner width changes, update the width in the state
+        window.addEventListener('resize', () => {
+            setScreenWidth(window.innerWidth)
+        })
     }, [])
 
     useEffect(() => {
@@ -83,34 +109,48 @@ export default function GameBoard(props) {
                 console.log('opponent has moved')
                 forceMove(move.startLocation, move.endLocation)
                 // now update which team is able to move a piece
-                console.log('team should now change from ' + teamUp + ' to ...')
-                if (teamUp.current === 'white') {
-                    console.log('black')
+                if (teamUpRef.current === 'white') {
                     setTeamUp('black')
-                } else if (teamUp.current === 'black') {
-                    console.log('white')
+                } else if (teamUpRef.current === 'black') {
                     setTeamUp('white')
                 }
+            })
+
+            socket.current.on('roomJoined', room => {
+                // if room.pieces has more than 0 items, set the state to that
+                if (room.pieces.length > 0) {
+                    // because each piece is now just an object in server, create array of pieces as instances of their respective piece class
+                    const piecesWithInstances = createPiecesInstancesArray(room.pieces)
+                    // set the new array of pieces to the state
+                    setPieces(piecesWithInstances)
+                }
+            })
+
+            socket.current.on('resetGame', () => {
+                // on game reset, reset board pieces
+                setPieces(createNewBoardPieces())
             })
         }
     }, [isSocketConnected])
 
     // render board when the team is changed
     useEffect(() => {
-        if (team === 'white' || team === 'watcher') {
+        console.log('should create board for team ', teamState)
+        if (teamState === 'white' || teamState === 'watcher') {
             createTeamBoard('white')
-        } else if (team === 'black') {
+        } else if (teamState === 'black') {
             createTeamBoard('black');
         }
-    }, [team])
+    }, [teamState])
 
     useEffect(() => {
         if (boardSquaresState.length > 0 && pieces.current.length > 0) {
             // update board squares reference to contain up to date version of board
             setBoardSquaresRef(boardSquaresState)
             renderPieces()
+            console.log('creating click event listeners')
             // now that boards are loaded back on to the page, add event listeners to each square
-            createClickEventListener()
+            // createClickEventListener()
         }
     }, [boardSquaresState])
 
@@ -157,26 +197,30 @@ export default function GameBoard(props) {
         } else {
             // send message to server that a piece was just moved
             socket.current.emit('userMovedPiece', { startLocation: selectedPiece.currentLocation, endLocation: newLocation })
-            console.log('team is currently ' + teamUp.current + ', it should now change to..')
             // update which team is up
-            if (teamUp.current === 'black') {
+            if (teamUpRef.current === 'black') {
                 setTeamUp('white')
-                console.log('white')
-            } else if (teamUp.current === 'white') {
-                console.log('black')
+            } else if (teamUpRef.current === 'white') {
                 setTeamUp('black')
             }
 
             // if there is another piece on that square, remove it from the state
             if (pieceAtNewSpot) {
-                // signify that a piece is being moved
-                setDoRemovePiece(true)
                 // remove piece at the new location
                 const newPiecesArr = removePiece(newLocation)
                 // update the location of the moved piece
                 updatePieceLocation(selectedPiece.currentLocation, newLocation)
                 // update pieces state with new array of pieces
                 setPieces(newPiecesArr)
+                // update array of pieces taken
+                updatePiecesTaken(pieceAtNewSpot)
+                // send piece taken to server
+                socket.current.emit('pieceTaken', pieceAtNewSpot)
+
+                // if piece taken is the king, emit the loss to the server
+                if (pieceAtNewSpot.pieceType === 'king') {
+                    socket.current.emit('kingTaken', teamRef.current)
+                }
             } else {
                 // if no piece is at new square, just update the pieces on the board
                 selectedPiece.setCurrentLocation({ letter: newLocation.letter, number: newLocation.number })
@@ -187,19 +231,21 @@ export default function GameBoard(props) {
 
     // force a piece to move if server sends opponent's move
     const forceMove = (startLocation, newLocation) => {
+        console.log('start location: ', startLocation)
         const selectedPiece = getPieceReference(startLocation)
+        console.log(pieces.current)
         const pieceAtNewSpot = getPieceReference(newLocation)
 
         // if there is another piece on that square, remove it from the state
         if (pieceAtNewSpot) {
-            // signify that a piece is being moved
-            setDoRemovePiece(true)
             // remove piece at the new location
             const newPiecesArr = removePiece(newLocation)
             // update the location of the moved piece
             updatePieceLocation(selectedPiece.currentLocation, newLocation)
             // update pieces state with new array of pieces
             setPieces(newPiecesArr)
+            // update array of pieces taken
+            updatePiecesTaken(pieceAtNewSpot)
         } else {
             // if no piece is at new square, just update the pieces on the board
             selectedPiece.setCurrentLocation({ letter: newLocation.letter, number: newLocation.number })
@@ -216,7 +262,7 @@ export default function GameBoard(props) {
             letters.forEach(letter => {
                 boardSquares.push(<div className={isDarkSquare ? 'board-square square-light' : 'board-square square-dark'} data-letter={letter} data-number={i} data-location={letter + i}>
                     <div className='square-available-circle'></div>
-                    <div className='square-clickable' ></div>
+                    <div className='square-clickable' onClick={handleSquareClick}></div>
                 </div>)
                 // only change isDarkSquare boolean if not on last letter
                 if (letter !== 'h') {
@@ -229,7 +275,7 @@ export default function GameBoard(props) {
         if (team === 'black') {
             boardSquares = boardSquares.reverse()
         }
-
+        console.log('setting board squares state')
         return setBoardSquaresState(boardSquares)
     }
 
@@ -259,75 +305,94 @@ export default function GameBoard(props) {
         })
 
         // reset states
-        setCurrentlySelectedPiece({}) // this seems to be causing the issues
-        
+        setCurrentlySelectedPiece({})
+
         setSelectedPieceOpenSpots([])
+
+        // send message to server that pieces array has changed since this function gets called when a piece gets moved
+        if (isSocketConnected) {
+            console.log('updating pieces on server')
+            socket.current.emit('piecesUpdate', { pieces: pieces.current, teamUp: teamUpRef.current })
+        }
     }
 
-    const createClickEventListener = () => {
-        document.querySelectorAll('.square-clickable').forEach(square => {
-            square.addEventListener('click', event => {
-                // if the team that is up is not the user's team, don't let anything happen on click
-                if (teamUp.current !== team) {
-                    return
-                }
-                const clickedLocationLetter = event.target.parentElement.getAttribute('data-letter')
-                const clickedLocationNumber = parseInt(event.target.parentElement.getAttribute('data-number'))
-                // get the piece at the given square, if no piece will be undefined
-                const pieceAtClickedSquare = getPieceReference({ letter: clickedLocationLetter, number: clickedLocationNumber })
-                // get the currently selected piece, will be undefined if no piece is selected
-                let selectedPiece = getPieceReference(currentlySelectedPiece.current)
-                // if a piece is selected and a piece is at the square you are trying to move to , check if they are the same color
-                let piecesAreSameTeam = selectedPiece && pieceAtClickedSquare ? selectedPiece.color === pieceAtClickedSquare.color: false
+    const handleSquareClick = (event) => {
+        console.log('click')
+        // if the team that is up is not the user's team or game is not active, don't let anything happen on click
+        if (teamUpRef.current !== teamRef.current || !isGameActiveRef.current) {
+            console.log('you are not up')
+            return
+        }
+        const clickedLocationLetter = event.target.parentElement.getAttribute('data-letter')
+        const clickedLocationNumber = parseInt(event.target.parentElement.getAttribute('data-number'))
+        // get the piece at the given square, if no piece will be undefined
+        const pieceAtClickedSquare = getPieceReference({ letter: clickedLocationLetter, number: clickedLocationNumber })
+        // get the currently selected piece, will be undefined if no piece is selected
+        let selectedPiece = getPieceReference(currentlySelectedPiece.current)
+        // if a piece is selected and a piece is at the square you are trying to move to , check if they are the same color
+        let piecesAreSameTeam = selectedPiece && pieceAtClickedSquare ? selectedPiece.color === pieceAtClickedSquare.color : false
 
-                // if there is a selected piece, user must be looking to move that piece
-                if (selectedPiece && !piecesAreSameTeam && (selectedPiece.currentLocation.letter !== clickedLocationLetter || selectedPiece.currentLocation.number !== clickedLocationNumber)) {
-                    movePiece(selectedPiece, { letter: clickedLocationLetter, number: clickedLocationNumber })
-                }
+        console.log(pieceAtClickedSquare)
+        // if there is a selected piece, user must be looking to move that piece
+        if (selectedPiece && !piecesAreSameTeam && (selectedPiece.currentLocation.letter !== clickedLocationLetter || selectedPiece.currentLocation.number !== clickedLocationNumber)) {
+            movePiece(selectedPiece, { letter: clickedLocationLetter, number: clickedLocationNumber })
+        }
+        // if user is clicking a piece to see where it can move to, show available squares
+        else if (pieceAtClickedSquare) {
+            // update state to contain open spots for selcted piece
+            // setSelectedPieceOpenSpots([])
 
-                // if user is clicking a piece to see where it can move to, show available squares
-                else if (pieceAtClickedSquare) {
-                    // update state to contain open spots for selcted piece
-                    // setSelectedPieceOpenSpots([])
+            // if another square is already clicked and user is swithcing to another piece
+            if (selectedPiece && (clickedLocationLetter !== selectedPiece.currentLocation.letter || clickedLocationNumber !== selectedPiece.currentLocation.number)) {
+                // update currently selected piece state to new piece
+                setCurrentlySelectedPiece({ letter: clickedLocationLetter, number: clickedLocationNumber })
+                // update available spots state
+                setSelectedPieceOpenSpots(getPotentialMoves(pieceAtClickedSquare, pieces.current))
+            }
+            // if user is just re-selcting their currently selcted piece, remove open spots from board
+            else if (selectedPiece && clickedLocationLetter === selectedPiece.currentLocation.letter && clickedLocationNumber === selectedPiece.currentLocation.number) {
+                setSelectedPieceOpenSpots([])
+                // reset currently selected piece state
+                setCurrentlySelectedPiece({})
+            }
 
-                    // if another square is already clicked and user is swithcing to another piece
-                    if (selectedPiece && (clickedLocationLetter !== selectedPiece.currentLocation.letter || clickedLocationNumber !== selectedPiece.currentLocation.number)) {
-                        // update currently selected piece state to new piece
-                        setCurrentlySelectedPiece({ letter: clickedLocationLetter, number: clickedLocationNumber })
-                        // update available spots state
-                        setSelectedPieceOpenSpots(getPotentialMoves(pieceAtClickedSquare, pieces.current))
-                    }
-                    // if user is just re-selcting their currently selcted piece, remove open spots from board
-                    else if (selectedPiece && clickedLocationLetter === selectedPiece.currentLocation.letter && clickedLocationNumber === selectedPiece.currentLocation.number) {
-                        setSelectedPieceOpenSpots([])
-                        // reset currently selected piece state
-                        setCurrentlySelectedPiece({})
-                    }
+            // if no other piece is currently selected, select piece and show available spots if team is same as user's team
+            else if (!selectedPiece && pieceAtClickedSquare.color === teamRef.current) {
+                setCurrentlySelectedPiece({ letter: clickedLocationLetter, number: clickedLocationNumber })
+                setSelectedPieceOpenSpots(getPotentialMoves(pieceAtClickedSquare, pieces.current))
+            }
 
-                    // if no other piece is currently selected, select piece and show available spots if team is same as user's team
-                    else if (!selectedPiece && pieceAtClickedSquare.color === team) {
-                        setCurrentlySelectedPiece({ letter: clickedLocationLetter, number: clickedLocationNumber })
-                        setSelectedPieceOpenSpots(getPotentialMoves(pieceAtClickedSquare, pieces.current))
-                    }
+            else {
+                console.log('user is on a different team than selected piece')
+            }
 
-                    else {
-                        console.log('user is on a different team than selected piece')
-                    }
+        }
 
-                }
-
-                else {
-                }
-            })
-        })
+        else {
+            console.log('nothing is happening')
+        }
     }
 
     return (
-        <>
-            <div className='board'>
+        // based on screen's width, determine height of board
+        <div className='board' style={screenWidth < 850 ? { height: `${screenWidth}px` } : { height: `850px` }}>
+            {/* set font size to be inherited by each piece icon */}
+            <div className='board-squares-wrapper' style={screenWidth < 850 ? {fontSize: `${screenWidth / 8 * .8}px`} : {fontSize: `${850 / 8 * .8}px`}}>
                 {boardSquaresState.map(square => square)}
             </div>
-            <button onClick={renderPieces}>Click me</button>
-        </>
+            <div className={`pending-game-overlay${!isGameActiveState ? ' show-pending-overlay' : ''}`}>
+                <div className='pending-game-text-container'>
+                    <h2 className='pending-game-header'>{gamePendingHeading}</h2>
+                    <p>
+                        {`Invite your friends!  Send them your current url or have them join with the room's ID of ${roomId}`}
+                    </p>
+                    {gamePendingButtonText && teamState !== 'watcher' ?
+                        // show button if there is text for the button
+                        <button className='btn btn-primary pending-game-button' onClick={handleOverlayButtonClick}>{gamePendingButtonText}</button> :
+                        false
+                    }
+                </div>
+            </div>
+        </div>
     )
 }

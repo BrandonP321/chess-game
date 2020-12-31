@@ -1,22 +1,69 @@
 .board {
+    position: relative;
     display: flex;
     flex-wrap: wrap;
-    width: 850px;
+    width: 100%;
+    max-width: 850px;
     margin: 0 auto;
 }
 
 .board-square {
     position: relative;
     width: calc(100% / 8);
-    height: calc(850px / 8);
+    /* height: calc(850px / 8); */
+    height: calc(100% / 8);
+}
+
+.board-squares-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    width: 100%;
+    height: 100%;
+}
+
+/* .board-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 850px;
+    padding-top: 100%;
+    margin: 0 auto;
+} */
+
+.pending-game-button {
+    width: 50%;
+    padding: 2%;
+    font-size: 1.5rem;
+    border-radius: 20px;
+}
+
+.pending-game-overlay {
+    position: absolute;
+    display: none;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background-color: rgba(0, 0, 0, .5);
+    z-index: 500;
+}
+
+.pending-game-overlay.show-pending-overlay {
+    display: block;
+}
+
+.pending-game-text-container {
+    position: relative;
+    top: 30%;
+    width: 60%;
+    padding: 2%;
+    margin: 0 auto;
+    text-align: center;
+    background-color: white;
+    border-radius: 20px;
 }
 
 .icon-container-black {
     color: black;
-}
-
-.icon-container-black i {
-    /* -webkit-text-stroke: 1px white; */
 }
 
 .icon-container-white {
@@ -35,8 +82,8 @@
 
 .piece-icon-container i {
     position: relative;
-    font-size: 80px;
-    top: 10px;
+    font-size: inherit;
+    bottom: 10%;
     color: inherit;
 }
 

@@ -1,9 +1,8 @@
-// const Piece = require('./Piece')
 import Piece from './Piece'
 
 export default class Rook extends Piece {
-    constructor(startLocation, color) {
-        super(startLocation, color)
+    constructor(startLocation, color, currentLocation) {
+        super(startLocation, color, currentLocation)
         this.pieceType = 'rook'
         this.moveChanges = []
         // create moves rook could make

@@ -1,0 +1,78 @@
+.home-content-wrapper {
+    position:relative;
+    height: 100vh;
+    width: 100%;
+}
+
+.home-bg-div {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #b58863;
+    clip-path: polygon(100% 0, 0% 100%, 100% 100%);
+}
+
+.home-bg-white {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background-color: #efd8b5;
+}
+
+.join-room-form {
+    display: flex;
+}
+
+.join-room-wrapper {
+    bottom: 20%;
+    right: 15%;
+}
+
+.new-room-btn {
+    width: 100%;
+    padding: 1%;
+    font-size: 1.2rem;
+}
+
+.new-room-wrapper {
+    top: 20%;
+    left: 10%;
+}
+
+.join-room-wrapper, .new-room-wrapper {
+    text-align: center;
+    width: 420px;
+    position: absolute;
+}
+
+/* at 740px vw, stack divs vertically */
+@media screen and (max-width: 740px) {
+    .home-bg-div {
+        height: 50%;
+        width: 100%;
+        top: auto;
+        left: 0;
+        bottom: 0;
+        clip-path: none;
+    }
+
+    .join-room-wrapper, .new-room-wrapper {
+        width: 90%;
+        /* margin: 0 auto; */
+    }
+
+    .join-room-wrapper {
+        bottom: auto;
+        left: 5%;
+        top: 67%;
+    }
+
+    .new-room-wrapper {
+        top: 18%;
+        left: 5%;
+    }
+}

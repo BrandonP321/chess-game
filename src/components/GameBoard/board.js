@@ -5,6 +5,7 @@ import Knight from '../../classes/Knight'
 import Rook from '../../classes/Rook'
 import Bishop from '../../classes/Bishop'
 import Queen from '../../classes/Queen'
+import King from '../../classes/King'
 
 const letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
 
@@ -49,7 +50,12 @@ function createNewBoardPieces() {
         new Queen({ letter: 'd', number: 8 }, 'black')
     ]
 
-    return [...queens, ...bishops, ...rooks, ...knights, ...pawns]
+    const kings = [
+        new King({ letter: 'e', number: 1 }, 'white'),
+        new King({ letter: 'e', number: 8 }, 'black')
+    ]
+
+    return [...queens, ...bishops, ...rooks, ...knights, ...pawns, ...kings]
 }
 
 function createWhiteTeamBoard(squareClickFunction) {
@@ -172,9 +178,41 @@ function getPotentialMoves(chosenPiece, pieces, getPieceReferenceFunc) {
     return availableSpots
 }
 
+function createPiecesInstancesArray(piecesArr) {
+    const pieces = []
+    piecesArr.forEach(piece => {
+        const { startLocation, color, currentLocation } = piece
+
+        // based on what the piece is, create an instance of that piece and push it to the new arr
+        switch(piece.pieceType) {
+            case 'bishop':
+                pieces.push(new Bishop(startLocation, color, currentLocation))
+                break;
+            case 'king':
+                pieces.push(new King(startLocation, color, currentLocation))
+                break;
+            case 'knight':
+                pieces.push(new Knight(startLocation, color, currentLocation))
+                break;
+            case 'pawn':
+                pieces.push(new Pawn(startLocation, color, currentLocation))
+                break;
+            case 'queen':
+                pieces.push(new Queen(startLocation, color, currentLocation))
+                break;
+            case 'rook':
+                pieces.push(new Rook(startLocation, color, currentLocation))
+                break;
+        }
+    })
+
+    return pieces
+}
+
 export default {
     createNewBoardPieces: createNewBoardPieces,
     createWhiteTeamBoard: createWhiteTeamBoard,
     createBlackTeamBoard: createBlackTeamBoard,
-    getPotentialMoves: getPotentialMoves
+    getPotentialMoves: getPotentialMoves,
+    createPiecesInstancesArray: createPiecesInstancesArray
 }

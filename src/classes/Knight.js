@@ -2,8 +2,8 @@
 import Piece from './Piece'
 
 export default class Knight extends Piece {
-    constructor(startLocation, color) {
-        super(startLocation, color);
+    constructor(startLocation, color, currentLocation) {
+        super(startLocation, color, currentLocation)
         this.pieceType = 'knight'
         this.moveChanges = [
             {
