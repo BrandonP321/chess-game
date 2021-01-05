@@ -5,12 +5,11 @@
 
 .game-aside-content {
     position: relative;
-    background-color: salmon;
     width: 400px;
+    height: 100vh;
 }
 
 .game-main-content {
-    background-color: blue;
     width: calc(100% - 400px);
 }
 

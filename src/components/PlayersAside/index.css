@@ -1,10 +1,47 @@
-
 .icon-black {
     color: black;
 }
 
 .icon-white {
     color: white;
+}
+
+.player-aside-container {
+    padding: 4%;
+    position: relative;
+    height: 100%;
+    background-color: #b58863;
+}
+
+.player-btns {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 30px;
+}
+
+.player-btns button {
+    padding: 2px 20px;
+    border-radius: 10px;
+}
+
+.room-id-text {
+    position: absolute;
+    bottom: 0px;
+    left: 20px;
+    font-size: 20px;
+}
+
+.spectators-container, .player-info-container {
+    margin-top: 20px;
+}
+
+.spectators-flex {
+    height: 35vh;
+    overflow: auto;
+}
+
+.spectator-name {
+    font-size: 20px;
 }
 
 .taken-piece-icon {
@@ -32,4 +69,10 @@
 
 .team-icon {
     font-size: 4rem;
+}
+
+.trade-place-btn {
+    position: relative;
+    left: 5px;
+    padding: 2px 10px;
 }

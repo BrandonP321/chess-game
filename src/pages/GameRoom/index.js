@@ -356,7 +356,7 @@ export default function GameRoom() {
     return (
         <>
             <div className='content-wrapper'>
-                <div className='game-main-content'>
+                <div className='game-main-content bg-dark'>
                     <GameBoard 
                         roomId={room}
                         teamRef={teamRef}
@@ -380,6 +380,7 @@ export default function GameRoom() {
                 </div>
                 <div className='game-aside-content'>
                     <PlayersAside 
+                        roomId={room}
                         teamRef={teamRef} 
                         teamState={teamState}
                         whitePiecesTakenRef={whitePiecesTakenRef} 
