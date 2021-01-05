@@ -117,6 +117,8 @@ export default function GameBoard(props) {
             })
 
             socket.current.on('roomJoined', room => {
+                createTeamBoard('white')
+                
                 // if room.pieces has more than 0 items, set the state to that
                 if (room.pieces.length > 0) {
                     // because each piece is now just an object in server, create array of pieces as instances of their respective piece class
@@ -124,6 +126,8 @@ export default function GameBoard(props) {
                     // set the new array of pieces to the state
                     setPieces(piecesWithInstances)
                 }
+
+                // since no team has been assigned yet, create the board for team white
             })
 
             socket.current.on('resetGame', () => {
