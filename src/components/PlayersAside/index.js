@@ -23,7 +23,8 @@ export default function PlayersAside(props) {
         usernameRef,
         usernameState,
         watchers,
-        roomId
+        roomId,
+        toggleMobileMenu
     } = props
 
     const [drawIsAsked, setDrawIsAsked] = useState(false)
@@ -73,6 +74,7 @@ export default function PlayersAside(props) {
 
     return (
         <div className='player-aside-container'>
+            <span className='mobile-menu-exit' onClick={toggleMobileMenu}>&times;</span>
             <div className='player-btns' style={teamRef.current !== 'watcher' ? {} : { display: 'none' }}>
                 <button onClick={askForDraw}>Draw</button>
                 <button onClick={playerResign}>Resign</button>

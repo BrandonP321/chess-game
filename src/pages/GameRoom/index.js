@@ -4,6 +4,7 @@ import { Modal, Button } from 'react-bootstrap'
 import socketIOClient from 'socket.io-client'
 import GameBoard from '../../components/GameBoard'
 import PlayersAside from '../../components/PlayersAside'
+import GameHeader from '../../components/GameHeader'
 import './index.css'
 
 // endpoint for socket.io connection
@@ -15,6 +16,9 @@ export default function GameRoom() {
 
     // controls the state of the modal
     const [showModal, setShowModal] = useState(true)
+
+    // controls showing mobile menu
+    const [showMobileAside, setShowMobileAside] = useState(false)
 
     // state of heading and button showing when game is inactive
     const [gamePendingHeading, setGamePendingHeadingState] = useState('Waiting for Second Player')
@@ -353,8 +357,13 @@ export default function GameRoom() {
         }
     }
 
+    const toggleMobileMenu = () => {
+        setShowMobileAside(!showMobileAside)
+    }
+
     return (
         <>
+            <GameHeader toggleMobileMenu={toggleMobileMenu}/>
             <div className='content-wrapper'>
                 <div className='game-main-content bg-dark'>
                     <GameBoard 
@@ -378,7 +387,7 @@ export default function GameRoom() {
                         handleOverlayButtonClick={handleOverlayButtonClick}
                     />
                 </div>
-                <div className='game-aside-content'>
+                <div className={`game-aside-content${showMobileAside ? ' show' : ''}`}>
                     <PlayersAside 
                         roomId={room}
                         teamRef={teamRef} 
@@ -394,6 +403,7 @@ export default function GameRoom() {
                         watchers={watchers}
                         socket={socket}
                         isSocketConnected={isSocketConnected}
+                        toggleMobileMenu={toggleMobileMenu}
                     />
                 </div>
             </div>

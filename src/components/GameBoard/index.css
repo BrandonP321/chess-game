@@ -121,3 +121,9 @@
 .square-light {
     background-color: #efd8b5;
 }
+
+@media screen and (max-width: 600px) {
+    .pending-game-text-container {
+        width: 95%;
+    }
+}
