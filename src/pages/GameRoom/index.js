@@ -17,6 +17,8 @@ export default function GameRoom() {
     // controls the state of the modal
     const [showModal, setShowModal] = useState(true)
 
+    const [usernameHelpText, setUsernameHelpText] = useState('')
+
     // controls showing mobile menu
     const [showMobileAside, setShowMobileAside] = useState(false)
 
@@ -165,9 +167,11 @@ export default function GameRoom() {
                     setGamePendingHeading('Game Ready to Begin')
                     // setGamePendingButtonText("Start Game")
                 }
-            } else {
-                console.log('username taken')
             }
+        })
+
+        socket.current.on('usernameTaken', () => {
+            setUsernameHelpText('Username Taken')
         })
 
         socket.current.on('newPlayerJoined', user => {
@@ -190,10 +194,6 @@ export default function GameRoom() {
                 setGamePendingHeading('New User Joined')
                 setGamePendingButtonText("Resume Game")
             }
-        })
-
-        socket.current.on('notEnoughPlayersToStart', () => {
-
         })
 
         socket.current.on('startGame', team => {
@@ -327,9 +327,9 @@ export default function GameRoom() {
     }
 
     const attemptUsernameCreate = () => {
-        socket.current.emit('createUsername', usernameRef.current)
+        setUsernameHelpText('')
 
-        // move this code in to a socket.on() once username validation on server
+        socket.current.emit('createUsername', usernameRef.current)
     }
 
     const updatePiecesTaken = piece => {
@@ -361,9 +361,19 @@ export default function GameRoom() {
         setShowMobileAside(!showMobileAside)
     }
 
+    const handleLeaveGame = () => {
+        // tell server you are leaving the game
+        socket.current.emit('leaveGame', usernameRef.current)
+        // redirect back to home page
+        window.location.href = '/'
+    }
+
     return (
         <>
-            <GameHeader toggleMobileMenu={toggleMobileMenu}/>
+            <GameHeader 
+                toggleMobileMenu={toggleMobileMenu}
+                handleLeaveGame={handleLeaveGame}
+            />
             <div className='content-wrapper'>
                 <div className='game-main-content bg-dark'>
                     <GameBoard 
@@ -418,6 +428,7 @@ export default function GameRoom() {
                 </Modal.Header>
                 <Modal.Body>
                     <input type='text' className='form-control' value={usernameState} placeholder='Username' onChange={handleModalInputChange} />
+                    <p className='username-help'>{usernameHelpText}</p>
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="primary" onClick={attemptUsernameCreate}>Let's Go</Button>

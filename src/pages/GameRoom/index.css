@@ -17,6 +17,10 @@
     width: calc(100% - 400px);
 }
 
+.username-help {
+    color: red;
+}
+
 /* at 1300px move aside containing player info to above board */
 @media screen and (max-width: 1300px) {
     body {
