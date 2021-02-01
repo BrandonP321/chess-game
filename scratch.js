@@ -1,7 +1,3 @@
-const obj = {}
-
-if (Object.keys(obj).length > 0) {
-    console.log(true)
-} else {
-    console.log(false)
-}
+let arr = ['hi', 'there', 'brandon', 'my', 'dude']
+arr.splice(2, 1)
+console.log(arr)

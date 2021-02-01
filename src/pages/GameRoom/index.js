@@ -144,6 +144,11 @@ export default function GameRoom() {
             setIsGameActive(room.gameStatus)
         })
 
+        socket.current.on('noRoomFound', () => {
+            // if the room id doesn't exist on server, redirect to home page
+            window.location.href = '/'
+        })
+
         socket.current.on('usernameCreated', newUser => {
             if (newUser) {
                 // hide the modal

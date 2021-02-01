@@ -6,7 +6,7 @@ export default function GameHeader(props) {
 
     return (
         <header className='game-header'>
-            <h1><i class="fas fa-chess-king header-icon" /> 1-2-3 Chess</h1>
+            <h1 onClick={() => window.location.href='/'}><i class="fas fa-chess-king header-icon" /> 1-2-3 Chess</h1>
             <div className='responsive-header-btns'>
                 <button className='leave-room-btn btn btn-danger' onClick={handleLeaveGame}>Leave Room</button>
                 <i className='fas fa-bars menu-icon' onClick={toggleMobileMenu}></i>
