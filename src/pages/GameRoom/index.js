@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, useHistory } from 'react-router-dom'
 import { Modal, Button } from 'react-bootstrap'
 import socketIOClient from 'socket.io-client'
 import GameBoard from '../../components/GameBoard'
@@ -11,6 +11,8 @@ import './index.css'
 const ENDPOINT = `${process.env.REACT_APP_SOCKET_ENDPOINT}/game`
 
 export default function GameRoom() {
+    let history = useHistory();
+
     // get room id from url
     const { room } = useParams();
 
@@ -146,7 +148,7 @@ export default function GameRoom() {
 
         socket.current.on('noRoomFound', () => {
             // if the room id doesn't exist on server, redirect to home page
-            window.location.href = '/'
+            history.push('/')
         })
 
         socket.current.on('usernameCreated', newUser => {
@@ -370,7 +372,7 @@ export default function GameRoom() {
         // tell server you are leaving the game
         socket.current.emit('leaveGame', usernameRef.current)
         // redirect back to home page
-        window.location.href = '/'
+        history.push('/')
     }
 
     return (

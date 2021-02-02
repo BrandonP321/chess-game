@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react'
+import { useHistory } from 'react-router-dom'
 import HomeHeader from '../../components/HomeHeader'
 import socketIOClient from 'socket.io-client'
 import './index.css'
@@ -7,6 +8,8 @@ import './index.css'
 const ENDPOINT = process.env.REACT_APP_SOCKET_ENDPOINT
 
 export default function Home() {
+    let history = useHistory();
+
     const socket = useRef()
     const setSocket = data => {
         socket.current = data
@@ -19,12 +22,12 @@ export default function Home() {
         socket.current.on('newRoomCreated', room => {
             console.log('created room ' + room)
             // redirect to game room with room's id
-            window.location.href = '/game/' + room
+            history.push('/game/' + room)
         })
 
         socket.current.on('allowRoomJoin', room => {
             // redirect to the game with the given room id
-            window.location.href = '/game/' + room
+            history.push('/game/' + room)
         })
     }
 
