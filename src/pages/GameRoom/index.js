@@ -8,8 +8,7 @@ import GameHeader from '../../components/GameHeader'
 import './index.css'
 
 // endpoint for socket.io connection
-// const ENDPOINT = `${process.env.REACT_APP_SOCKET_ENDPOINT}/game`
-const ENDPOINT = 'http://localhost:8000/game'
+const ENDPOINT = `${process.env.REACT_APP_SOCKET_ENDPOINT}/game`
 
 export default function GameRoom() {
     let history = useHistory();
