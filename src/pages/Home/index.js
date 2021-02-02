@@ -5,7 +5,8 @@ import socketIOClient from 'socket.io-client'
 import './index.css'
 
 // endpoint for socket.io connection
-const ENDPOINT = process.env.REACT_APP_SOCKET_ENDPOINT
+// const ENDPOINT = process.env.REACT_APP_SOCKET_ENDPOINT
+const ENDPOINT = 'http://localhost:8000'
 
 export default function Home() {
     let history = useHistory();

@@ -8,13 +8,16 @@ import GameHeader from '../../components/GameHeader'
 import './index.css'
 
 // endpoint for socket.io connection
-const ENDPOINT = `${process.env.REACT_APP_SOCKET_ENDPOINT}/game`
+// const ENDPOINT = `${process.env.REACT_APP_SOCKET_ENDPOINT}/game`
+const ENDPOINT = 'http://localhost:8000/game'
 
 export default function GameRoom() {
     let history = useHistory();
 
     // get room id from url
     const { room } = useParams();
+
+    const gameHasStarted = useRef(false)
 
     // controls the state of the modal
     const [showModal, setShowModal] = useState(true)
@@ -204,7 +207,6 @@ export default function GameRoom() {
         })
 
         socket.current.on('startGame', team => {
-            console.log('game started ', team)
             // if no team is up, game has not yet started and can be set to white
             if (teamUpRef.current === 'none'){
                 console.log('team should be updated')
@@ -213,6 +215,7 @@ export default function GameRoom() {
             // remove text from game pending button
             setGamePendingButtonText('')
             setIsGameActive(true)
+            gameHasStarted.current = true
         })
 
         socket.current.on('gameOver', winningTeam => {
@@ -251,11 +254,13 @@ export default function GameRoom() {
             if (team === 'white') {
                 setWhiteUsername('')
                 setIsGameActive(false)
-                setGamePendingHeading('User Left, Waiting for New Player')
+                if (gameHasStarted.current) setGamePendingHeading('User Left, Waiting for New Player')
+                else setGamePendingHeading('Waiting for Second Player')
             } else if (team === 'black') {
                 setBlackUsername('')
                 setIsGameActive(false)
-                setGamePendingHeading('User Left, Waiting for New Player')
+                if (gameHasStarted.current) setGamePendingHeading('User Left, Waiting for New Player')
+                else setGamePendingHeading('Waiting for Second Player')
             } else {
                 setWatchers(watchersRef.current.filter(watcher => watcher !== username))
             }
@@ -314,7 +319,7 @@ export default function GameRoom() {
 
         // tell the server when a player is leaving the page
         window.onbeforeunload = () => {
-            socket.current.emit('userLeaving', { username: usernameRef.current, team: teamRef.current})
+            socket.current.emit('leaveGame', {username: usernameRef.current, team: teamRef.current})
         }
     }
 
@@ -370,7 +375,7 @@ export default function GameRoom() {
 
     const handleLeaveGame = () => {
         // tell server you are leaving the game
-        socket.current.emit('leaveGame', usernameRef.current)
+        socket.current.emit('leaveGame', teamRef.current)
         // redirect back to home page
         history.push('/')
     }
