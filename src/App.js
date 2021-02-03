@@ -9,7 +9,8 @@ import GameHeader from './components/GameHeader';
 function App() {
   return (
     <div className="App">
-      <Router basename={process.env.PUBLIC_URL}>
+      {/* <Router basename={process.env.PUBLIC_URL}> */}
+      <Router basename={'/chess-game'}>
         <Switch>
           <Route exact path='/'>
             <Home />
