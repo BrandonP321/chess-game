@@ -10,6 +10,8 @@ const ENDPOINT = process.env.REACT_APP_SOCKET_ENDPOINT
 export default function Home() {
     let history = useHistory();
 
+    const [isCreatingRoom, setIsCreatingRoom] = useState(false)
+
     const socket = useRef()
     const setSocket = data => {
         socket.current = data
@@ -21,6 +23,7 @@ export default function Home() {
 
         socket.current.on('newRoomCreated', room => {
             console.log('created room ' + room)
+            setIsCreatingRoom(false)
             // redirect to game room with room's id
             history.push('/game/' + room)
         })
@@ -37,6 +40,7 @@ export default function Home() {
     }, [])
 
     const handleNewRoomCreate = () => {
+        setIsCreatingRoom(true)
         // tell socket.io server to make a new room for the user
         socket.current.emit('createNewRoom')
     }
@@ -60,6 +64,7 @@ export default function Home() {
                 <div className='new-room-wrapper'>
                     <h2>Create New Room</h2>
                     <button className='btn btn-primary new-room-btn' onClick={handleNewRoomCreate}>Create New Room</button>
+                    <i className={`fad fa-spinner-third${isCreatingRoom ? ' show' : ''}`}></i>
                 </div>
                 <div className='join-room-wrapper'>
                     <h2>Join Existing Room</h2>

@@ -39,8 +39,24 @@
 }
 
 .new-room-wrapper {
+    position: relative;
     top: 20%;
     left: 10%;
+}
+
+.new-room-wrapper i {
+    display: none;
+    position: absolute;
+    top: 0;
+    right: 0;
+    font-size: 2rem;
+    margin-top: 10px;
+    height: 30px;
+    animation: spin 2s linear infinite;
+}
+
+.new-room-wrapper i.show {
+    display: block;
 }
 
 .join-room-wrapper, .new-room-wrapper {
@@ -74,5 +90,20 @@
     .new-room-wrapper {
         top: 18%;
         left: 5%;
+    }
+}
+
+@media screen and (max-width: 400px) {
+    .new-room-wrapper i {
+        position: static;
+    }
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
     }
 }
