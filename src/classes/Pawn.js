@@ -14,6 +14,7 @@ export default class Pawn extends Piece {
     }
     
     removeBlockedPaths(blockedSpotsArr, availableSpotsArr) {
+        console.log(blockedSpotsArr, availableSpotsArr)
         let availableSpots = availableSpotsArr;
 
         blockedSpotsArr.forEach(spot => {
@@ -23,10 +24,23 @@ export default class Pawn extends Piece {
             }
             // if blocked spot is above current, block all spots above it including it
             if (spot.number > this.currentLocation.number) {
-                availableSpots = availableSpots.filter(openSpot => openSpot.number >= spot.number && openSpot.letter !== this.currentLocation.letter)
+                // if piece is at starting location and can move 2 squares, only remove the square in front 
+                // if piece blocking is 2 squares in front of pawn
+                if (Math.abs(this.currentLocation.number - spot.number) === 2) {
+                    availableSpots = availableSpots.filter(openSpot => Math.abs(openSpot.number - this.currentLocation.number) === 1)
+                } else {
+                    availableSpots = availableSpots.filter(openSpot => openSpot.number >= spot.number && openSpot.letter !== this.currentLocation.letter)
+                }
             } else {
                 // if blocked spot is below current, block all spots beneath it including it
-                availableSpots = availableSpots.filter(openSpot => openSpot.number <= spot.number && openSpot.letter !== this.currentLocation.letter)
+
+                // if piece is at starting location and can move 2 squares, only remove the square in front
+                // if piece blocking is 2 squares in front of pawn
+                if (Math.abs(this.currentLocation.number - spot.number) === 2) {
+                    availableSpots = availableSpots.filter(openSpot => Math.abs(openSpot.number - this.currentLocation.number) === 1)
+                } else {
+                    availableSpots = availableSpots.filter(openSpot => openSpot.number <= spot.number && openSpot.letter !== this.currentLocation.letter)
+                }
             }
         })
 

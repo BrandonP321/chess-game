@@ -360,7 +360,7 @@ export default function GameBoard(props) {
                 setCurrentlySelectedPiece({})
             }
 
-            // if no other piece is currently selected, select piece and show available spots if team is same as user's team
+            // if no other piece is currently selected, select piece and show available spots if piece color is same as user's team
             else if (!selectedPiece && pieceAtClickedSquare.color === teamRef.current) {
                 setCurrentlySelectedPiece({ letter: clickedLocationLetter, number: clickedLocationNumber })
                 setSelectedPieceOpenSpots(getPotentialMoves(pieceAtClickedSquare, pieces.current))
